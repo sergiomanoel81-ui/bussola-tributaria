@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bússola Tributária</title>
+<meta name="description" content="Simulador do impacto da Reforma Tributária para pequenas e médias empresas.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F7F5F0; --surface:#FFFFFF; --surface-2:#F1EEE7;
+    --ink:#18211E; --ink-2:#4B5751; --ink-3:#7E877F;
+    --line:#E4DFD4; --line-2:#D5CFC1;
+    --accent:#0B5D54; --accent-soft:#0B5D5414;
+    --good:#1E8A5A; --warn:#B67B12; --warn-soft:#B67B1218; --bad:#C4462E;
+    --shadow:0 1px 2px rgba(24,33,30,.04), 0 6px 24px rgba(24,33,30,.06);
+    --shadow-lg:0 2px 4px rgba(24,33,30,.06), 0 18px 48px rgba(24,33,30,.12);
+  }
+  @media (prefers-color-scheme:dark){:root{
+    --paper:#121816; --surface:#1A2220; --surface-2:#212B28;
+    --ink:#ECEAE2; --ink-2:#AEB6B0; --ink-3:#7C857F;
+    --line:#2A3532; --line-2:#374440;
+    --accent:#3FB8A8; --accent-soft:#3FB8A81f;
+    --good:#54C48A; --warn:#D9A648; --warn-soft:#d9a6481f; --bad:#E4795F;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 6px 24px rgba(0,0,0,.35);
+    --shadow-lg:0 2px 4px rgba(0,0,0,.35), 0 18px 48px rgba(0,0,0,.5);
+  }}
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0; background:var(--paper); color:var(--ink); font-family:"IBM Plex Sans",system-ui,-apple-system,sans-serif; line-height:1.55; -webkit-font-smoothing:antialiased}
+  h1,h2,h3,.display{font-family:"Archivo",system-ui,sans-serif; text-wrap:balance; letter-spacing:-.02em}
+  .num{font-family:"IBM Plex Mono",monospace; font-variant-numeric:tabular-nums}
+  img{max-width:100%}
+  a{color:inherit}
+  .wrap{max-width:1080px; margin:0 auto; padding:0 22px}
+
+  header{border-bottom:1px solid var(--line); position:sticky; top:0; z-index:10; background:color-mix(in srgb,var(--paper) 84%,transparent); backdrop-filter:blur(8px)}
+  .nav{display:flex; align-items:center; justify-content:space-between; gap:16px; padding:14px 22px; max-width:1080px; margin:0 auto}
+  .brand{display:flex; align-items:center; gap:11px}
+  .mark{width:34px; height:34px; border-radius:9px; background:var(--accent); display:grid; place-items:center; flex:none; box-shadow:var(--shadow)}
+  .brand b{font-family:"Archivo"; font-weight:800; font-size:1.02rem; display:block; line-height:1.1}
+  .brand span{font-size:.72rem; color:var(--ink-3)}
+  .nav-cta{font-size:.85rem; font-weight:600; color:var(--accent); text-decoration:none; padding:8px 14px; border:1px solid var(--line-2); border-radius:9px}
+  .nav-cta:hover{border-color:var(--accent)}
+
+  .hero{padding:72px 0 40px}
+  .eyebrow{display:inline-flex; align-items:center; gap:8px; font-size:.74rem; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--accent); background:var(--accent-soft); border:1px solid color-mix(in srgb,var(--accent) 24%,transparent); padding:6px 12px; border-radius:99px; margin-bottom:22px}
+  .hero h1{font-size:clamp(2rem,5.2vw,3.4rem); line-height:1.06; font-weight:800; margin:0 0 18px; max-width:16ch}
+  .hero h1 em{font-style:normal; color:var(--accent)}
+  .hero p.lead{font-size:clamp(1.02rem,2.2vw,1.24rem); color:var(--ink-2); max-width:56ch; margin:0 0 30px}
+  .btns{display:flex; gap:13px; flex-wrap:wrap}
+  .btn{display:inline-flex; align-items:center; gap:9px; font-family:"Archivo"; font-weight:700; font-size:.98rem; text-decoration:none; padding:14px 24px; border-radius:12px; border:1px solid transparent; cursor:pointer}
+  .btn-primary{background:var(--accent); color:#fff; box-shadow:var(--shadow-lg)}
+  @media (prefers-color-scheme:dark){.btn-primary{color:#0a1411}}
+  .btn-primary:hover{filter:brightness(1.06); transform:translateY(-1px)}
+  .btn-ghost{background:var(--surface); color:var(--ink); border-color:var(--line-2)}
+  .btn-ghost:hover{border-color:var(--accent); color:var(--accent)}
+
+  .strip{display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:16px; overflow:hidden; margin:16px 0 8px; box-shadow:var(--shadow)}
+  @media (max-width:720px){.strip{grid-template-columns:1fr}}
+  .cell{background:var(--surface); padding:24px}
+  .cell .k{font-family:"Archivo"; font-weight:800; font-size:1.9rem; color:var(--accent); line-height:1; margin-bottom:8px}
+  .cell .t{font-weight:600; font-size:.95rem; margin-bottom:4px}
+  .cell .s{font-size:.85rem; color:var(--ink-2)}
+
+  section.block{padding:56px 0}
+  .sec-eyebrow{font-size:.74rem; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-3); margin-bottom:10px}
+  .block h2{font-size:clamp(1.5rem,3.4vw,2.1rem); margin:0 0 34px; max-width:20ch}
+
+  .cards{display:grid; grid-template-columns:1fr 1fr; gap:20px}
+  @media (max-width:720px){.cards{grid-template-columns:1fr}}
+  .pcard{background:var(--surface); border:1px solid var(--line); border-radius:18px; padding:28px; box-shadow:var(--shadow); display:flex; flex-direction:column}
+  .pcard.feat{border-color:color-mix(in srgb,var(--accent) 40%,transparent); box-shadow:var(--shadow-lg)}
+  .pcard .tag{align-self:flex-start; font-size:.68rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; padding:5px 11px; border-radius:99px; margin-bottom:16px}
+  .pcard.demo .tag{color:var(--warn); background:var(--warn-soft); border:1px solid color-mix(in srgb,var(--warn) 30%,transparent)}
+  .pcard.feat .tag{color:#fff; background:var(--accent)}
+  @media (prefers-color-scheme:dark){.pcard.feat .tag{color:#0a1411}}
+  .pcard h3{font-size:1.35rem; margin:0 0 6px}
+  .pcard .pd{font-size:.9rem; color:var(--ink-2); margin:0 0 18px}
+  .pcard ul{list-style:none; padding:0; margin:0 0 24px; display:flex; flex-direction:column; gap:10px; flex:1}
+  .pcard li{display:flex; gap:10px; align-items:flex-start; font-size:.9rem; color:var(--ink-2)}
+  .pcard li svg{flex:none; margin-top:2px}
+  .pcard li.off{color:var(--ink-3)}
+  .pcard .btn{width:100%; justify-content:center}
+
+  footer{border-top:1px solid var(--line); padding:30px 0 46px; color:var(--ink-3); font-size:.8rem; line-height:1.6}
+  footer b{color:var(--ink-2)}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important; scroll-behavior:auto}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="nav">
+    <div class="brand">
+      <div class="mark"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polygon points="16.2 7.8 13.4 13.4 7.8 16.2 10.6 10.6" fill="#fff" stroke="none"/></svg></div>
+      <div><b>Bússola Tributária</b><span>Impacto da Reforma na sua empresa</span></div>
+    </div>
+    <a class="nav-cta" href="demo/">Testar agora →</a>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="hero">
+    <span class="eyebrow">Reforma Tributária · transição 2026–2033</span>
+    <h1>Sua empresa vai <em>pagar mais</em> ou <em>menos</em> com a reforma?</h1>
+    <p class="lead">Descubra em minutos. A Bússola Tributária simula o impacto do novo IVA (IBS + CBS) e do Imposto Seletivo no seu negócio — e mostra quanto crédito você ganha ou perde conforme os seus fornecedores.</p>
+    <div class="btns">
+      <a class="btn btn-primary" href="demo/">Testar a demonstração</a>
+      <a class="btn btn-ghost" href="completo/">Abrir a versão completa</a>
+    </div>
+  </section>
+
+  <div class="strip">
+    <div class="cell">
+      <div class="k">4</div>
+      <div class="t">Cenários lado a lado</div>
+      <div class="s">Lucro Presumido, Lucro Real, Reforma e Reforma + Seletivo — com a carga efetiva de cada um.</div>
+    </div>
+    <div class="cell">
+      <div class="k">R$</div>
+      <div class="t">Mapa de créditos</div>
+      <div class="s">Fornecedor a fornecedor: veja quanto crédito você aproveita e quanto perde comprando do Simples.</div>
+    </div>
+    <div class="cell">
+      <div class="k">%</div>
+      <div class="t">Sensibilidade</div>
+      <div class="s">A alíquota do IVA ainda está em definição — simule diferentes cenários e planeje antes de 2026.</div>
+    </div>
+  </div>
+
+  <section class="block">
+    <div class="sec-eyebrow">Comece por aqui</div>
+    <h2>Escolha como quer usar a ferramenta</h2>
+    <div class="cards">
+      <div class="pcard demo">
+        <span class="tag">Grátis · demonstração</span>
+        <h3>Versão demonstração</h3>
+        <p class="pd">Ideal para ter uma primeira leitura do impacto da reforma no seu negócio.</p>
+        <ul>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--good)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Comparação completa dos 4 cenários</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--good)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Veredito e gráfico de sensibilidade</li>
+          <li class="off"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg> Até 3 fornecedores, sem importação</li>
+        </ul>
+        <a class="btn btn-ghost" href="demo/">Abrir demonstração →</a>
+      </div>
+      <div class="pcard feat">
+        <span class="tag">Ferramenta completa</span>
+        <h3>Versão completa</h3>
+        <p class="pd">O mapa completo de fornecedores e créditos, para uma análise de verdade.</p>
+        <ul>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--good)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Fornecedores ilimitados, com % de crédito</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--good)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Importar planilha (.csv / .xlsx) e baixar modelo</li>
+          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--good)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Simulação de migração de fornecedores</li>
+        </ul>
+        <a class="btn btn-primary" href="completo/">Abrir versão completa →</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <b>Bússola Tributária</b> — ferramenta demonstrativa. As alíquotas (IVA e Imposto Seletivo) são premissas didáticas, não valores oficiais, e o modelo simplifica o regime atual para fins de comparação. Não substitui a análise de um contador. Base legal: EC 132/2023 e LC 214/2025 · transição 2026–2033.
+  </div>
+</footer>
+
+</body>
+</html>

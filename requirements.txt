@@ -1,0 +1,20 @@
+# Kit BI - bibliotecas Python
+# Manipulacao de dados
+pandas
+numpy
+openpyxl          # ler/escrever Excel (.xlsx)
+
+# Visualizacao
+matplotlib
+seaborn
+plotly            # graficos interativos
+
+# Dashboard
+streamlit         # paineis interativos no navegador
+
+# Analise em notebook
+jupyterlab
+ipykernel
+
+# Conexao com bancos (para quando tiver dados em SQL)
+SQLAlchemy
