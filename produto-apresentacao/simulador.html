@@ -135,13 +135,13 @@
 
   .verdict{border-radius:18px; padding:24px 26px; box-shadow:var(--shadow-lg); border:1px solid var(--line); position:relative; overflow:hidden; background:var(--surface)}
   .verdict::before{content:""; position:absolute; inset:0 auto 0 0; width:6px}
-  .verdict[data-dir="up"]::before{background:var(--bad)}
+  .verdict[data-dir="up"]::before{background:var(--warn)}
   .verdict[data-dir="down"]::before{background:var(--good)}
   .verdict[data-dir="flat"]::before{background:var(--ink-3)}
   .verdict .vk{font-size:.72rem; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-3); font-weight:600; margin-bottom:8px}
   .verdict h2{font-size:clamp(1.4rem,3.2vw,2.15rem); line-height:1.12; letter-spacing:-.02em; margin:0 0 14px; max-width:24ch}
   .verdict h2 em{font-style:normal; padding:0 .12em}
-  .verdict[data-dir="up"] h2 em{color:var(--bad)}
+  .verdict[data-dir="up"] h2 em{color:var(--warn)}
   .verdict[data-dir="down"] h2 em{color:var(--good)}
   .verdict .sub{color:var(--ink-2); font-size:.94rem; max-width:56ch}
   .verdict .sub b{color:var(--ink)}
@@ -173,7 +173,7 @@
   .bar-fill.f-base{background:linear-gradient(90deg, color-mix(in srgb,var(--accent) 82%,#000 4%), var(--accent))}
   .bar-fill.f-alt{background:linear-gradient(90deg,#8a8f79,#a6ab93)}
   .bar-fill.f-good{background:linear-gradient(90deg, color-mix(in srgb,var(--good) 85%,#000 5%), var(--good))}
-  .bar-fill.f-bad{background:linear-gradient(90deg, color-mix(in srgb,var(--bad) 85%,#000 5%), var(--bad))}
+  .bar-fill.f-bad{background:linear-gradient(90deg, color-mix(in srgb,var(--warn) 85%,#000 5%), var(--warn))}
 
   .legend{display:flex; flex-wrap:wrap; gap:14px; margin-top:18px; padding-top:16px; border-top:1px solid var(--line)}
   .legend span{display:flex; align-items:center; gap:7px; font-size:.76rem; color:var(--ink-2)}
@@ -347,7 +347,7 @@
         <div class="adv-grid">
           <div class="mini"><label for="iva">IVA — IBS + CBS <span class="v" id="ivaV">28%</span></label><input type="range" id="iva" min="18" max="32" step="0.5" value="28"></div>
           <div class="mini"><label for="sel">Imposto Seletivo <span class="v" id="selV">20%</span></label><input type="range" id="sel" min="0" max="40" step="1" value="20"></div>
-          <div class="mini"><label for="simplesAprov">Crédito do fornecedor Simples <span class="v" id="simplesAprovV">20%</span></label><input type="range" id="simplesAprov" min="0" max="60" step="5" value="20"></div>
+          <div class="mini"><label for="simplesAprov">Crédito repassado pelo Simples Unificado <span class="v" id="simplesAprovV">0%</span></label><input type="range" id="simplesAprov" min="0" max="20" step="1" value="0"></div>
           <div class="mini"><label for="ipi">IPI (regime atual) <span class="v" id="ipiV">15%</span></label><input type="range" id="ipi" min="0" max="30" step="1" value="15"></div>
           <div class="mini"><label for="icms">ICMS (regime atual) <span class="v" id="icmsV">18%</span></label><input type="range" id="icms" min="0" max="25" step="1" value="18"></div>
           <label class="check" style="margin-top:4px">
@@ -394,7 +394,7 @@
           <span><i style="background:var(--accent)"></i>Seu regime atual</span>
           <span><i style="background:#a6ab93"></i>Alternativa atual</span>
           <span><i style="background:var(--good)"></i>Reforma — alívio</span>
-          <span><i style="background:var(--bad)"></i>Reforma — aumento</span>
+          <span><i style="background:var(--warn)"></i>Reforma — aumento</span>
         </div>
       </section>
 
@@ -444,7 +444,7 @@
           <input type="checkbox" id="migrar">
           <span>
             <span class="mt">Simular todos os fornecedores no regime regular</span>
-            <span class="ms" id="migrarMs">Veja quanto sua empresa economizaria trocando fornecedores do Simples/isentos por optantes do regime regular.</span>
+            <span class="ms" id="migrarMs">Veja quanto sua empresa economizaria trocando fornecedores do Simples Unificado/MEI por regime regular ou Simples Híbrido.</span>
           </span>
         </label>
 
@@ -504,19 +504,20 @@
   const brl2 = new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL',minimumFractionDigits:0,maximumFractionDigits:0});
   const pct = n => (n*100).toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1})+'%';
 
-  const DEFAULTS = { fat:100000, regime:'LP', temIS:true, iva:28, sel:20, ipi:15, icms:18, isBase:true, migrar:false, simplesAprov:20 };
+  const DEFAULTS = { fat:100000, regime:'LP', temIS:true, iva:28, sel:20, ipi:15, icms:18, isBase:true, migrar:false, simplesAprov:0 };
   const PIS_LP = 0.0365, PIS_LR = 0.0925;
 
   // Fração do IVA da compra que se converte em crédito para o comprador, por regime do fornecedor.
   // Regular: crédito pleno. Simples/MEI: crédito limitado ao efetivamente recolhido (ajustável). Isento/uso e consumo: nenhum.
-  function aprovOf(regime, s){ if(regime==='Regular') return 1.0; if(regime==='Isento') return 0.0; return (s.simplesAprov||0)/100; }
-  const REG_LABEL = { Regular:'Regime regular', Simples:'Simples / MEI', Isento:'Isento / sem crédito' };
-  const REG_COLOR = { Regular:'var(--good)', Simples:'var(--warn)', Isento:'var(--ink-3)' };
+  // Regular e Simples Híbrido geram crédito pleno (IBS/CBS por fora). Simples Unificado/MEI: sem crédito na entrada, repasse pequeno (ajustável). Isento: nenhum.
+  function aprovOf(regime, s){ if(regime==='Regular'||regime==='Hibrido') return 1.0; if(regime==='Isento') return 0.0; return (s.simplesAprov||0)/100; }
+  const REG_LABEL = { Regular:'Regime regular', Hibrido:'Simples Híbrido', Unificado:'Simples Unificado / MEI', Simples:'Simples Unificado / MEI', Isento:'Isento / sem crédito' };
+  const REG_COLOR = { Regular:'var(--good)', Hibrido:'var(--good)', Unificado:'var(--warn)', Simples:'var(--warn)', Isento:'var(--ink-3)' };
 
   const SUPPLIERS_DEFAULT = [
     { nome:'Distribuidora de matéria-prima', tipo:'Mercadoria', valor:24000, regime:'Regular' },
-    { nome:'Frete e logística',              tipo:'Serviço',    valor:7000,  regime:'Regular' },
-    { nome:'Embalagens (fornecedor Simples)', tipo:'Mercadoria', valor:9000,  regime:'Simples' },
+    { nome:'Aluguel do imóvel comercial',    tipo:'Imóveis (locação/arrend.)', valor:7000, regime:'Hibrido' },
+    { nome:'Embalagens (Simples Unificado)', tipo:'Mercadoria', valor:9000,  regime:'Unificado' },
   ];
   const cloneSup = arr => arr.map(x=>({...x}));
 
@@ -598,13 +599,13 @@
     $('kpiHojeD').textContent = `${baseKey==='LP'?'Lucro Presumido':'Lucro Real'} · ${brl.format(base.liq)}/mês`;
 
     $('kpiRef').textContent = pct(ref.carga);
-    $('kpiRef').style.color = up?'var(--bad)':(down?'var(--good)':'var(--ink)');
-    $('kpiRefDot').style.background = up?'var(--bad)':(down?'var(--good)':'var(--ink-3)');
+    $('kpiRef').style.color = up?'var(--warn)':(down?'var(--good)':'var(--ink)');
+    $('kpiRefDot').style.background = up?'var(--warn)':(down?'var(--good)':'var(--ink-3)');
     $('kpiRefD').textContent = `${s.temIS?'Com':'Sem'} Imposto Seletivo · ${brl.format(ref.liq)}/mês`;
 
     $('kpiDif').textContent = (diffYear>=0?'+':'−')+brl.format(Math.abs(diffYear)).replace('R$','R$');
-    $('kpiDif').style.color = up?'var(--bad)':(down?'var(--good)':'var(--ink)');
-    $('kpiDifDot').style.background = up?'var(--bad)':(down?'var(--good)':'var(--ink-3)');
+    $('kpiDif').style.color = up?'var(--warn)':(down?'var(--good)':'var(--ink)');
+    $('kpiDifDot').style.background = up?'var(--warn)':(down?'var(--good)':'var(--ink-3)');
     $('kpiDifD').textContent = up?'a mais no ano':(down?'de economia no ano':'sem mudança relevante');
 
     // bars — 4 scenarios
@@ -651,8 +652,8 @@
     $('supTotD').textContent = `${brl.format(cc.credit*12)} por ano abatidos do imposto da reforma.`;
     $('supLeak').textContent = brl.format(cc.leak) + '/mês';
     if(cc.leak > 1){
-      $('supLeakD').innerHTML = `Comprando de fornecedores fora do regime regular, você deixa de aproveitar <b>${brl.format(cc.leak*12)}/ano</b> em crédito.`;
-      $('migrarMs').innerHTML = `Trocar os fornecedores do Simples/isentos pelo regime regular recuperaria até <b>${brl.format(cc.leak)}/mês</b> (${brl.format(cc.leak*12)}/ano) em crédito.`;
+      $('supLeakD').innerHTML = `Comprando de fornecedores do Simples Unificado/MEI ou isentos, você deixa de aproveitar <b>${brl.format(cc.leak*12)}/ano</b> em crédito.`;
+      $('migrarMs').innerHTML = `Trocar os fornecedores do Simples Unificado/MEI por regime regular ou Simples Híbrido recuperaria até <b>${brl.format(cc.leak)}/mês</b> (${brl.format(cc.leak*12)}/ano) em crédito.`;
     } else {
       $('supLeakD').textContent = state.migrar ? 'Cenário com todos os fornecedores no regime regular — crédito máximo.' : 'Todos os seus fornecedores já geram crédito pleno.';
       $('migrarMs').textContent = 'Todos os fornecedores já estão no regime regular — crédito no máximo.';
@@ -670,16 +671,19 @@
           <select class="stipo" data-i="${i}" data-k="tipo" aria-label="Tipo">
             <option ${sp.tipo==='Mercadoria'?'selected':''}>Mercadoria</option>
             <option ${sp.tipo==='Serviço'?'selected':''}>Serviço</option>
+            <option ${sp.tipo==='Locação de bens'?'selected':''}>Locação de bens</option>
+            <option ${sp.tipo==='Imóveis (locação/arrend.)'?'selected':''}>Imóveis (locação/arrend.)</option>
           </select>
         </td>
         <td class="r"><span class="sval"><input type="text" inputmode="numeric" value="${fmtMoney(sp.valor)}" data-i="${i}" data-k="valor" aria-label="Valor mensal"></span></td>
         <td>
           <select class="sreg" data-i="${i}" data-k="regime" aria-label="Regime do fornecedor">
             <option value="Regular" ${sp.regime==='Regular'?'selected':''}>Regime regular</option>
-            <option value="Simples" ${sp.regime==='Simples'?'selected':''}>Simples / MEI</option>
+            <option value="Hibrido" ${sp.regime==='Hibrido'?'selected':''}>Simples Híbrido</option>
+            <option value="Unificado" ${sp.regime==='Unificado'||sp.regime==='Simples'?'selected':''}>Simples Unificado / MEI</option>
             <option value="Isento" ${sp.regime==='Isento'?'selected':''}>Isento</option>
           </select>
-          <div class="regchip"><i style="background:${REG_COLOR[sp.regime]}"></i>${state.migrar && sp.regime!=='Regular' ? 'simulado como regular' : (sp.regime==='Regular'?'crédito pleno':sp.regime==='Simples'?'crédito reduzido':'sem crédito')}</div>
+          <div class="regchip"><i style="background:${REG_COLOR[sp.regime]||'var(--ink-3)'}"></i>${(state.migrar && sp.regime!=='Regular' && sp.regime!=='Hibrido') ? 'simulado como regular' : ((sp.regime==='Regular'||sp.regime==='Hibrido')?'crédito pleno':(sp.regime==='Isento'?'sem crédito':'crédito reduzido'))}</div>
         </td>
         <td class="r"><span class="sup-pct" data-pctcell="${i}">—</span></td>
         <td class="r"><span class="sup-cred" data-credcell="${i}">—</span></td>
