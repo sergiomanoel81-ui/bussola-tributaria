@@ -1,0 +1,270 @@
+<title>Proposta Bússola Tributária</title>
+<meta name="description" content="Proposta de consultoria da Reforma Tributária para PMEs — diagnóstico, laudo e acompanhamento.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F7F5F0; --surface:#FFFFFF; --surface-2:#F1EEE7;
+    --ink:#18211E; --ink-2:#4B5751; --ink-3:#7E877F;
+    --line:#E4DFD4; --line-2:#D5CFC1;
+    --accent:#0B5D54; --accent-soft:#0B5D5412; --accent-ink:#08463F;
+    --good:#1E8A5A; --warn:#B67B12; --warn-soft:#B67B1216;
+    --edit:#B67B12; --edit-bg:#B67B1218;
+    --shadow:0 1px 2px rgba(24,33,30,.04), 0 8px 30px rgba(24,33,30,.07);
+  }
+  @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+    --paper:#121816; --surface:#1A2220; --surface-2:#212B28;
+    --ink:#ECEAE2; --ink-2:#AEB6B0; --ink-3:#7C857F;
+    --line:#2A3532; --line-2:#374440;
+    --accent:#3FB8A8; --accent-soft:#3FB8A81c; --accent-ink:#8FE0D3;
+    --good:#54C48A; --warn:#D9A648; --warn-soft:#d9a6481c;
+    --edit:#D9A648; --edit-bg:#d9a6481f;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 10px 34px rgba(0,0,0,.45);
+  }}
+  :root[data-theme="dark"]{
+    --paper:#121816; --surface:#1A2220; --surface-2:#212B28;
+    --ink:#ECEAE2; --ink-2:#AEB6B0; --ink-3:#7C857F;
+    --line:#2A3532; --line-2:#374440;
+    --accent:#3FB8A8; --accent-soft:#3FB8A81c; --accent-ink:#8FE0D3;
+    --good:#54C48A; --warn:#D9A648; --warn-soft:#d9a6481c;
+    --edit:#D9A648; --edit-bg:#d9a6481f;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 10px 34px rgba(0,0,0,.45);
+  }
+  *{box-sizing:border-box}
+  [hidden]{display:none!important}
+  body{margin:0; background:var(--paper); color:var(--ink); font-family:"IBM Plex Sans",system-ui,-apple-system,sans-serif; line-height:1.6; -webkit-font-smoothing:antialiased}
+  h1,h2,h3,.display{font-family:"Archivo",system-ui,sans-serif; text-wrap:balance; letter-spacing:-.02em}
+  .num{font-family:"IBM Plex Mono",monospace; font-variant-numeric:tabular-nums}
+  strong,b{color:var(--ink)}
+
+  .sheet{max-width:820px; margin:0 auto; padding:0 24px}
+  .toolbar{max-width:820px; margin:18px auto 0; padding:0 24px; display:flex; justify-content:flex-end; gap:10px}
+  .btn{display:inline-flex; align-items:center; gap:8px; border:1px solid var(--line-2); background:var(--surface); color:var(--ink-2); font:inherit; font-size:.82rem; font-weight:600; padding:9px 14px; border-radius:9px; cursor:pointer; text-decoration:none}
+  .btn:hover{border-color:var(--accent); color:var(--accent)}
+  .btn.solid{background:var(--accent); color:#fff; border-color:var(--accent)}
+  @media (prefers-color-scheme:dark){.btn.solid{color:#0a1411}}
+
+  /* editable placeholder marks */
+  .ed{color:var(--edit); background:var(--edit-bg); border-bottom:1px dashed var(--edit); padding:0 4px; border-radius:3px; font-weight:600}
+
+  header.cover{margin-top:20px; background:var(--surface); border:1px solid var(--line); border-radius:20px; padding:38px 40px; box-shadow:var(--shadow); position:relative; overflow:hidden}
+  header.cover::after{content:""; position:absolute; right:-80px; top:-80px; width:260px; height:260px; border-radius:50%; background:var(--accent-soft)}
+  .brand{display:flex; align-items:center; gap:12px; margin-bottom:26px; position:relative}
+  .mark{width:40px; height:40px; border-radius:11px; background:var(--accent); display:grid; place-items:center; flex:none}
+  .brand b{font-family:"Archivo"; font-weight:800; font-size:1.1rem; display:block; line-height:1.1}
+  .brand span{font-size:.74rem; color:var(--ink-3)}
+  .eyebrow{font-size:.74rem; font-weight:700; letter-spacing:.16em; text-transform:uppercase; color:var(--accent); margin-bottom:14px; position:relative}
+  header.cover h1{font-size:clamp(1.9rem,4.4vw,2.8rem); line-height:1.08; margin:0 0 18px; max-width:16ch; position:relative}
+  .cover-meta{display:flex; flex-wrap:wrap; gap:8px 28px; position:relative; padding-top:20px; border-top:1px solid var(--line); font-size:.9rem; color:var(--ink-2)}
+  .cover-meta div span{display:block; font-size:.7rem; text-transform:uppercase; letter-spacing:.08em; color:var(--ink-3); margin-bottom:2px}
+
+  section{margin-top:44px}
+  .kicker{font-size:.74rem; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-3); margin-bottom:12px}
+  h2{font-size:clamp(1.3rem,2.8vw,1.7rem); margin:0 0 16px}
+  h2 .n{color:var(--accent); font-family:"IBM Plex Mono"; font-size:.7em; margin-right:.5em; font-weight:600}
+  p{margin:0 0 14px; max-width:66ch}
+  .lead{font-size:1.08rem; color:var(--ink-2)}
+
+  .deliver{display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:8px}
+  @media (max-width:640px){.deliver{grid-template-columns:1fr}}
+  .d-item{border:1px solid var(--line); border-radius:13px; padding:18px 20px; background:var(--surface)}
+  .d-item h3{font-size:1rem; margin:0 0 6px; display:flex; align-items:center; gap:9px}
+  .d-item .ico{width:26px; height:26px; border-radius:7px; background:var(--accent-soft); display:grid; place-items:center; flex:none}
+  .d-item p{font-size:.9rem; color:var(--ink-2); margin:0}
+
+  /* pricing */
+  .plans{display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-top:8px}
+  @media (max-width:760px){.plans{grid-template-columns:1fr}}
+  .plan{border:1px solid var(--line); border-radius:16px; padding:24px 22px; background:var(--surface); display:flex; flex-direction:column; box-shadow:var(--shadow)}
+  .plan.feat{border-color:color-mix(in srgb,var(--accent) 45%,transparent); border-width:2px}
+  .plan .tag{align-self:flex-start; font-size:.64rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:#fff; background:var(--accent); padding:4px 10px; border-radius:99px; margin-bottom:14px}
+  @media (prefers-color-scheme:dark){.plan .tag{color:#0a1411}}
+  .plan.basic .tag{color:var(--ink-2); background:var(--surface-2); border:1px solid var(--line-2)}
+  .plan h3{font-size:1.15rem; margin:0 0 4px}
+  .plan .sub{font-size:.82rem; color:var(--ink-3); margin:0 0 16px; min-height:2.4em}
+  .price{font-family:"Archivo"; font-weight:800; font-size:1.7rem; color:var(--ink); line-height:1; margin-bottom:2px}
+  .price small{font-family:"IBM Plex Sans"; font-weight:600; font-size:.62em; color:var(--ink-3)}
+  .price-note{font-size:.72rem; color:var(--edit); margin-bottom:16px}
+  .plan ul{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:9px}
+  .plan li{display:flex; gap:9px; align-items:flex-start; font-size:.87rem; color:var(--ink-2)}
+  .plan li svg{flex:none; margin-top:3px}
+
+  /* steps */
+  .steps{display:flex; flex-direction:column; gap:2px; margin-top:8px}
+  .step{display:grid; grid-template-columns:44px 1fr; gap:16px; padding:16px 0; border-bottom:1px solid var(--line)}
+  .step:last-child{border-bottom:0}
+  .step .sn{font-family:"Archivo"; font-weight:800; font-size:1.1rem; color:#fff; background:var(--accent); width:36px; height:36px; border-radius:10px; display:grid; place-items:center}
+  @media (prefers-color-scheme:dark){.step .sn{color:#0a1411}}
+  .step h3{font-size:1rem; margin:0 0 3px}
+  .step p{font-size:.9rem; color:var(--ink-2); margin:0}
+  .step .when{font-size:.74rem; color:var(--accent); font-weight:600; margin-top:4px}
+
+  .why{background:var(--surface-2); border:1px solid var(--line); border-radius:16px; padding:26px 28px}
+  .why ul{margin:12px 0 0; padding-left:0; list-style:none; display:grid; grid-template-columns:1fr 1fr; gap:12px}
+  @media (max-width:640px){.why ul{grid-template-columns:1fr}}
+  .why li{display:flex; gap:10px; align-items:flex-start; font-size:.92rem; color:var(--ink-2)}
+  .why li svg{flex:none; margin-top:3px}
+  .why a{color:var(--accent); font-weight:600}
+
+  .cta-box{margin-top:44px; background:var(--accent); border-radius:18px; padding:32px 34px; color:#fff}
+  @media (prefers-color-scheme:dark){.cta-box{color:#0a1411}}
+  .cta-box h2{color:inherit; margin-bottom:8px}
+  .cta-box p{color:inherit; opacity:.92; max-width:60ch}
+  .contact{display:flex; flex-wrap:wrap; gap:10px 26px; margin-top:18px; font-size:.95rem; font-weight:600}
+  .contact span{display:block; font-size:.7rem; text-transform:uppercase; letter-spacing:.08em; opacity:.75; font-weight:600}
+
+  footer{max-width:820px; margin:30px auto 60px; padding:20px 24px 0; border-top:1px solid var(--line); color:var(--ink-3); font-size:.78rem; line-height:1.6}
+
+  @media print{
+    .toolbar{display:none}
+    body{background:#fff}
+    header.cover,.plan,.d-item,.why,.cta-box{box-shadow:none!important}
+    .cta-box{-webkit-print-color-adjust:exact; print-color-adjust:exact}
+    section{break-inside:avoid}
+  }
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="toolbar">
+  <button class="btn" id="themeBtn">Tema</button>
+  <button class="btn solid" id="printBtn">⤓ Salvar em PDF</button>
+</div>
+
+<div class="sheet">
+  <header class="cover">
+    <div class="brand">
+      <div class="mark"><svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polygon points="16.2 7.8 13.4 13.4 7.8 16.2 10.6 10.6" fill="#fff" stroke="none"/></svg></div>
+      <div><b>Bússola Tributária</b><span>Consultoria da Reforma para pequenas e médias empresas</span></div>
+    </div>
+    <div class="eyebrow">Proposta de consultoria</div>
+    <h1>Sua empresa pronta para a Reforma Tributária</h1>
+    <div class="cover-meta">
+      <div><span>Preparada para</span><span class="ed">[Nome da empresa / cliente]</span></div>
+      <div><span>Data</span><span class="ed">[__/__/____]</span></div>
+      <div><span>Consultor(a)</span><span class="ed">[Seu nome]</span></div>
+      <div><span>Validade</span>30 dias</div>
+    </div>
+  </header>
+
+  <section>
+    <p class="lead">A maior mudança tributária em 40 anos começa a valer em <strong>2026</strong> e se completa até <strong>2033</strong>. Para algumas empresas ela <strong>reduz</strong> a carga; para outras, <strong>aumenta</strong> — e a diferença muitas vezes está em detalhes como o regime dos seus fornecedores e o Imposto Seletivo. Esta proposta apresenta como vamos medir o impacto real no <span class="ed">[seu negócio]</span> e transformar isso em decisões concretas antes que a transição comece.</p>
+  </section>
+
+  <section>
+    <div class="kicker">O momento</div>
+    <h2>Por que agir agora, e não em 2026</h2>
+    <p>A transição é <strong>gradual</strong>: quem entende o próprio número cedo consegue renegociar fornecedores, ajustar preços e planejar o caixa com folga. Quem deixar para depois vai reagir no susto. Os três pontos que mais pesam:</p>
+    <div class="deliver">
+      <div class="d-item">
+        <h3><span class="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span>Créditos</h3>
+        <p>Na reforma, cada compra pode virar crédito — mas fornecedores do Simples ou isentos transferem muito menos. Isso muda de quem vale a pena comprar.</p>
+      </div>
+      <div class="d-item">
+        <h3><span class="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--warn)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.2 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.2a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg></span>Imposto Seletivo</h3>
+        <p>Bebidas, cigarros, açucarados e outros setores ganham um imposto extra que não gera crédito — e pode inverter o resultado da reforma.</p>
+      </div>
+      <div class="d-item">
+        <h3><span class="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m7 14 4-4 3 3 5-6"/></svg></span>Regime</h3>
+        <p>Lucro Presumido, Real ou Simples (unificado x híbrido) reagem de formas diferentes. A escolha certa pode valer dezenas de milhares por ano.</p>
+      </div>
+      <div class="d-item">
+        <h3><span class="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V10M18 20V4M6 20v-4"/></svg></span>Preço e margem</h3>
+        <p>Se a carga muda, o preço e a margem mudam junto. Melhor recalcular agora do que descobrir no fechamento do mês.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="kicker">Serviços</div>
+    <h2>Escolha o nível de profundidade</h2>
+    <p>Todos os pacotes usam a nossa ferramenta própria de simulação. Os valores abaixo são <span class="ed">sugestões — ajuste para a sua realidade</span>.</p>
+    <div class="plans">
+      <div class="plan basic">
+        <span class="tag">Ponto de partida</span>
+        <h3>Diagnóstico Express</h3>
+        <p class="sub">Uma leitura rápida e objetiva do impacto da reforma no seu negócio.</p>
+        <div class="price">R$ <span class="ed">1.900</span></div>
+        <div class="price-note">valor único</div>
+        <ul>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--good)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Simulação dos 4 cenários</li>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--good)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Relatório do impacto em PDF</li>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--good)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Reunião de 1h de leitura</li>
+        </ul>
+      </div>
+      <div class="plan feat">
+        <span class="tag">Mais escolhido</span>
+        <h3>Laudo Completo</h3>
+        <p class="sub">O plano de ação: onde você ganha, onde perde e o que fazer sobre isso.</p>
+        <div class="price">R$ <span class="ed">6.500</span></div>
+        <div class="price-note">valor único</div>
+        <ul>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--good)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Tudo do Diagnóstico, e mais:</li>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--good)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Análise por CNAE e produto</li>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--good)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Mapa de fornecedores e créditos</li>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--good)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Projeção ano a ano 2026–2033</li>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--good)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Recomendação de regime e preço</li>
+        </ul>
+      </div>
+      <div class="plan basic">
+        <span class="tag">Contínuo</span>
+        <h3>Acompanhamento</h3>
+        <p class="sub">A regulamentação muda o tempo todo. Mantemos você um passo à frente.</p>
+        <div class="price">R$ <span class="ed">1.200</span><small>/mês</small></div>
+        <div class="price-note">a partir de · 12 meses</div>
+        <ul>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--good)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Atualização a cada nova regra</li>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--good)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Revisão trimestral de fornecedores</li>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--good)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Canal direto para dúvidas</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="kicker">Como funciona</div>
+    <h2>Do primeiro contato ao plano na mão</h2>
+    <div class="steps">
+      <div class="step"><div class="sn">1</div><div><h3>Levantamento</h3><p>Você envia faturamento, regime e as compras/fornecedores — ou importamos das suas notas fiscais.</p><div class="when">Dias 1–2</div></div></div>
+      <div class="step"><div class="sn">2</div><div><h3>Simulação</h3><p>Rodamos os cenários na ferramenta e identificamos onde está o ganho ou a perda.</p><div class="when">Dias 3–5</div></div></div>
+      <div class="step"><div class="sn">3</div><div><h3>Laudo e recomendações</h3><p>Entregamos o relatório com números, regime recomendado e plano de créditos.</p><div class="when">Dias 6–8</div></div></div>
+      <div class="step"><div class="sn">4</div><div><h3>Apresentação</h3><p>Reunião para explicar o resultado e definir os próximos passos com você.</p><div class="when">Dia 9</div></div></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="kicker">Diferencial</div>
+    <div class="why">
+      <h2 style="margin-bottom:6px">Por que a Bússola Tributária</h2>
+      <p style="margin:0; color:var(--ink-2)">Não trabalhamos no achismo. Cada análise sai de uma <strong>ferramenta própria</strong> que simula o seu caso número a número — a mesma que você pode testar agora.</p>
+      <ul>
+        <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Simulador que consulta o CNPJ e classifica o regime do fornecedor automaticamente</li>
+        <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Comparação lado a lado dos regimes, com a carga efetiva de cada um</li>
+        <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Foco em PME: linguagem clara, sem juridiquês</li>
+        <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Entrega rápida: laudo em pouco mais de uma semana</li>
+      </ul>
+      <p style="margin:16px 0 0"><a href="https://sergiomanoel81-ui.github.io/bussola-tributaria-demo/">▸ Teste a demonstração da ferramenta</a></p>
+    </div>
+  </section>
+
+  <div class="cta-box">
+    <h2>Vamos começar pelo diagnóstico?</h2>
+    <p>Basta responder este contato com o aceite. Em até dois dias úteis iniciamos o levantamento — e você tem o seu número antes da reforma começar.</p>
+    <div class="contact">
+      <div><span>WhatsApp / telefone</span><span class="ed">[(00) 00000-0000]</span></div>
+      <div><span>E-mail</span><span class="ed">[seu-email@dominio.com]</span></div>
+      <div><span>Site</span>sergiomanoel81-ui.github.io/bussola-tributaria</div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div>As alíquotas usadas nas simulações (IVA e Imposto Seletivo) são <strong>premissas de trabalho</strong> baseadas no material disponível até a data desta proposta e serão ajustadas conforme a regulamentação (EC 132/2023 e LC 214/2025). Este documento é uma proposta comercial e não constitui parecer jurídico ou contábil. Valores em reais, sujeitos a confirmação no fechamento do escopo.</div>
+</footer>
+
+<script>
+  const root=document.documentElement;
+  function darkNow(){ const t=root.getAttribute('data-theme'); return t==='dark' || (!t && matchMedia('(prefers-color-scheme:dark)').matches); }
+  document.getElementById('themeBtn').addEventListener('click',()=>{ root.setAttribute('data-theme', darkNow()?'light':'dark'); });
+  document.getElementById('printBtn').addEventListener('click',()=>window.print());
+</script>

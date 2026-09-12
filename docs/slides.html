@@ -1,0 +1,265 @@
+<title>Pitch Bússola Tributária</title>
+<meta name="description" content="Apresentação de vendas da Bússola Tributária — consultoria da Reforma Tributária para PMEs.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800;900&family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F7F5F0; --surface:#FFFFFF; --surface-2:#F1EEE7;
+    --ink:#18211E; --ink-2:#4B5751; --ink-3:#7E877F;
+    --line:#E4DFD4; --line-2:#D5CFC1;
+    --accent:#0B5D54; --accent-soft:#0B5D5412;
+    --good:#1E8A5A; --warn:#B67B12; --bad:#C4462E;
+    --on-accent:#ffffff;
+  }
+  @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+    --paper:#0E1412; --surface:#161D1B; --surface-2:#1E2724;
+    --ink:#ECEAE2; --ink-2:#AEB6B0; --ink-3:#7C857F;
+    --line:#26312E; --line-2:#33403C;
+    --accent:#3FB8A8; --accent-soft:#3FB8A81c;
+    --good:#54C48A; --warn:#D9A648; --bad:#E4795F; --on-accent:#08130F;
+  }}
+  :root[data-theme="dark"]{
+    --paper:#0E1412; --surface:#161D1B; --surface-2:#1E2724;
+    --ink:#ECEAE2; --ink-2:#AEB6B0; --ink-3:#7C857F;
+    --line:#26312E; --line-2:#33403C;
+    --accent:#3FB8A8; --accent-soft:#3FB8A81c;
+    --good:#54C48A; --warn:#D9A648; --bad:#E4795F; --on-accent:#08130F;
+  }
+  *{box-sizing:border-box}
+  [hidden]{display:none!important}
+  body{margin:0; background:var(--paper); color:var(--ink); font-family:"IBM Plex Sans",system-ui,sans-serif; -webkit-font-smoothing:antialiased; overflow:hidden}
+  h1,h2,h3,.display{font-family:"Archivo",system-ui,sans-serif; text-wrap:balance; letter-spacing:-.02em; margin:0}
+  .num{font-family:"IBM Plex Mono",monospace; font-variant-numeric:tabular-nums}
+
+  .deck{height:100vh; width:100vw; position:relative}
+  .slide{position:absolute; inset:0; display:flex; flex-direction:column; justify-content:center; padding:min(8vh,72px) min(9vw,96px); opacity:0; visibility:hidden; transition:opacity .35s ease; overflow-y:auto}
+  .slide.active{opacity:1; visibility:visible}
+  @media (prefers-reduced-motion:reduce){.slide{transition:none}}
+  .slide-inner{max-width:1000px; width:100%; margin:0 auto}
+
+  .eyebrow{font-size:.8rem; font-weight:700; letter-spacing:.16em; text-transform:uppercase; color:var(--accent); margin-bottom:22px}
+  .slide h1{font-size:clamp(2.2rem,6vw,4.4rem); line-height:1.02; font-weight:900}
+  .slide h2{font-size:clamp(1.7rem,4.2vw,3rem); line-height:1.08; font-weight:800}
+  .slide p.big{font-size:clamp(1.05rem,2.2vw,1.5rem); color:var(--ink-2); max-width:40ch; margin:22px 0 0; line-height:1.5}
+  .accent{color:var(--accent)}
+  .up{color:var(--warn)} .down{color:var(--good)}
+
+  .brand{display:flex; align-items:center; gap:14px; margin-bottom:38px}
+  .mark{width:52px; height:52px; border-radius:14px; background:var(--accent); display:grid; place-items:center; flex:none}
+  .brand b{font-family:"Archivo"; font-weight:800; font-size:1.3rem; display:block; line-height:1.1}
+  .brand span{font-size:.85rem; color:var(--ink-3)}
+
+  .pills{display:flex; flex-wrap:wrap; gap:10px; margin-top:30px}
+  .pill{font-size:.9rem; font-weight:600; color:var(--ink-2); background:var(--surface); border:1px solid var(--line); padding:10px 16px; border-radius:99px}
+
+  .two{display:grid; grid-template-columns:1.1fr 1fr; gap:40px; align-items:center}
+  @media (max-width:820px){.two{grid-template-columns:1fr; gap:26px}}
+
+  .figs{display:grid; gap:16px}
+  .fig{background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:22px 24px}
+  .fig .l{font-size:.85rem; color:var(--ink-3); font-weight:600; margin-bottom:8px}
+  .fig .v{font-family:"Archivo"; font-weight:800; font-size:clamp(1.8rem,4vw,2.6rem); line-height:1}
+  .fig .d{font-size:.85rem; color:var(--ink-2); margin-top:6px}
+
+  .arrow-flow{display:flex; align-items:center; gap:18px; flex-wrap:wrap; margin-top:12px}
+  .arrow-flow .big-num{font-family:"Archivo"; font-weight:900; font-size:clamp(2.4rem,7vw,4.6rem); line-height:1}
+  .arrow-flow .sep{font-size:2rem; color:var(--ink-3)}
+
+  ul.clean{list-style:none; padding:0; margin:26px 0 0; display:grid; gap:14px}
+  ul.clean li{display:flex; gap:13px; align-items:flex-start; font-size:clamp(1rem,1.8vw,1.2rem); color:var(--ink-2)}
+  ul.clean li svg{flex:none; margin-top:4px}
+  ul.clean b{color:var(--ink)}
+
+  .plans{display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-top:30px}
+  @media (max-width:820px){.plans{grid-template-columns:1fr}}
+  .plan{background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:22px}
+  .plan.feat{border-color:var(--accent); border-width:2px}
+  .plan h3{font-size:1.15rem; margin-bottom:6px}
+  .plan .pr{font-family:"Archivo"; font-weight:800; font-size:1.4rem; color:var(--accent); margin-bottom:10px}
+  .plan .pr small{font-size:.6em; color:var(--ink-3); font-weight:600; font-family:"IBM Plex Sans"}
+  .plan p{font-size:.88rem; color:var(--ink-2); margin:0}
+
+  .contact-grid{display:flex; flex-wrap:wrap; gap:14px 40px; margin-top:34px}
+  .contact-grid .l{font-size:.75rem; text-transform:uppercase; letter-spacing:.08em; color:var(--ink-3); font-weight:600; display:block; margin-bottom:3px}
+  .contact-grid .v{font-size:1.15rem; font-weight:600}
+  .ed{color:var(--warn); border-bottom:1px dashed var(--warn)}
+
+  /* controls */
+  .ctrl{position:fixed; z-index:10; bottom:22px; left:50%; transform:translateX(-50%); display:flex; align-items:center; gap:14px; background:var(--surface); border:1px solid var(--line); border-radius:99px; padding:8px 14px; box-shadow:0 6px 24px rgba(0,0,0,.14)}
+  .ctrl button{border:0; background:transparent; color:var(--ink-2); cursor:pointer; padding:6px; border-radius:8px; display:grid; place-items:center}
+  .ctrl button:hover{color:var(--accent); background:var(--accent-soft)}
+  .dots{display:flex; gap:7px}
+  .dot{width:8px; height:8px; border-radius:99px; background:var(--line-2); border:0; padding:0; cursor:pointer}
+  .dot.on{background:var(--accent); width:22px}
+  .counter{font-family:"IBM Plex Mono"; font-size:.8rem; color:var(--ink-3); min-width:42px; text-align:center}
+  .topbar{position:fixed; z-index:10; top:16px; right:18px; display:flex; gap:8px}
+  .tbtn{border:1px solid var(--line-2); background:var(--surface); color:var(--ink-2); font:inherit; font-size:.78rem; font-weight:600; padding:7px 12px; border-radius:8px; cursor:pointer}
+  .tbtn:hover{border-color:var(--accent); color:var(--accent)}
+  .progress{position:fixed; top:0; left:0; height:3px; background:var(--accent); z-index:11; transition:width .35s ease}
+  .kbd-hint{position:fixed; bottom:26px; right:22px; font-size:.74rem; color:var(--ink-3); z-index:10}
+  @media (max-width:820px){.kbd-hint{display:none}}
+
+  @media print{
+    body{overflow:visible}
+    .deck{height:auto}
+    .slide{position:relative; opacity:1!important; visibility:visible!important; min-height:96vh; break-after:page; border-bottom:1px solid #ddd}
+    .ctrl,.topbar,.kbd-hint,.progress{display:none!important}
+  }
+</style>
+
+<div class="progress" id="progress"></div>
+<div class="topbar">
+  <button class="tbtn" id="themeBtn">Tema</button>
+  <button class="tbtn" id="printBtn">⤓ PDF</button>
+</div>
+
+<div class="deck" id="deck">
+
+  <!-- 1 -->
+  <section class="slide active">
+    <div class="slide-inner">
+      <div class="brand">
+        <div class="mark"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="var(--on-accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polygon points="16.2 7.8 13.4 13.4 7.8 16.2 10.6 10.6" fill="var(--on-accent)" stroke="none"/></svg></div>
+        <div><b>Bússola Tributária</b><span>Consultoria da Reforma para PMEs</span></div>
+      </div>
+      <h1>A reforma vai mexer no seu caixa.<br><span class="accent">Pra que lado?</span></h1>
+      <p class="big">Descubra em minutos se a sua empresa vai pagar mais ou menos — e o que fazer sobre isso antes de 2026.</p>
+    </div>
+  </section>
+
+  <!-- 2 -->
+  <section class="slide">
+    <div class="slide-inner">
+      <div class="eyebrow">O problema</div>
+      <h2>A maior mudança tributária em 40 anos começa em 2026.</h2>
+      <p class="big">E a maioria das pequenas e médias empresas <b>não faz ideia</b> do impacto no próprio negócio — vão descobrir no susto, sem tempo de reagir.</p>
+      <div class="pills">
+        <span class="pill">IBS + CBS substituem 5 tributos</span>
+        <span class="pill">Transição 2026 → 2033</span>
+        <span class="pill">Imposto Seletivo novo</span>
+        <span class="pill">Regras de crédito mudam tudo</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 -->
+  <section class="slide">
+    <div class="slide-inner">
+      <div class="eyebrow">A virada</div>
+      <h2>Não existe resposta única. <span class="accent">Depende da sua empresa.</span></h2>
+      <div class="arrow-flow">
+        <span class="big-num down">−16%</span>
+        <span class="sep">ou</span>
+        <span class="big-num up">+25%</span>
+      </div>
+      <p class="big">A mesma reforma <span class="down">alivia</span> uma empresa e <span class="up">encarece</span> outra. O resultado é decidido por quatro coisas:</p>
+      <div class="pills">
+        <span class="pill">Créditos das compras</span>
+        <span class="pill">Regime dos fornecedores</span>
+        <span class="pill">Imposto Seletivo</span>
+        <span class="pill">Regime da empresa</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 -->
+  <section class="slide">
+    <div class="slide-inner two">
+      <div>
+        <div class="eyebrow">A ferramenta</div>
+        <h2>Medimos número a número — não no achismo.</h2>
+        <ul class="clean">
+          <li><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span>Compara <b>4 cenários</b> lado a lado, com a carga efetiva de cada um</span></li>
+          <li><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span>Consulta o <b>CNPJ</b> e classifica o regime do fornecedor sozinha</span></li>
+          <li><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span>Mostra o <b>crédito que você perde</b> comprando do Simples</span></li>
+          <li><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span>Gera o <b>diagnóstico em PDF</b> para o cliente levar</span></li>
+        </ul>
+      </div>
+      <div class="figs">
+        <div class="fig"><div class="l">Carga hoje</div><div class="v">36,7%</div><div class="d">Lucro Presumido</div></div>
+        <div class="fig"><div class="l">Na reforma + Seletivo</div><div class="v up">45,8%</div><div class="d">+ R$ 109 mil por ano</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 -->
+  <section class="slide">
+    <div class="slide-inner">
+      <div class="eyebrow">Exemplo real · indústria de bebidas</div>
+      <h2>O que o cliente enxerga em 5 minutos.</h2>
+      <div class="figs" style="grid-template-columns:repeat(3,1fr); margin-top:30px">
+        <div class="fig"><div class="l">Carga hoje</div><div class="v">36,7%</div><div class="d">R$ 36.650/mês</div></div>
+        <div class="fig"><div class="l">Reforma + Seletivo</div><div class="v up">45,8%</div><div class="d">R$ 45.760/mês</div></div>
+        <div class="fig"><div class="l">Crédito perdido</div><div class="v">R$ 45k</div><div class="d">por ano, em fornecedores do Simples</div></div>
+      </div>
+      <p class="big" style="max-width:60ch">Com o número na mão, a conversa deixa de ser "a reforma é boa ou ruim?" e passa a ser <b>"o que a gente faz sobre isso?"</b>.</p>
+    </div>
+  </section>
+
+  <!-- 6 -->
+  <section class="slide">
+    <div class="slide-inner">
+      <div class="eyebrow">O que entregamos</div>
+      <h2>Três formas de trabalhar juntos.</h2>
+      <div class="plans">
+        <div class="plan"><h3>Diagnóstico</h3><div class="pr">R$ <span class="ed">1.900</span></div><p>Simulação dos cenários + relatório do impacto em PDF.</p></div>
+        <div class="plan feat"><h3>Laudo Completo</h3><div class="pr">R$ <span class="ed">6.500</span></div><p>CNAE, mapa de créditos, projeção 2026–2033 e plano de ação.</p></div>
+        <div class="plan"><h3>Acompanhamento</h3><div class="pr">R$ <span class="ed">1.200</span><small>/mês</small></div><p>Atualização a cada nova regra e revisão de fornecedores.</p></div>
+      </div>
+      <p class="big" style="font-size:1rem; color:var(--ink-3); margin-top:18px">Valores de referência — ajustados por porte e complexidade.</p>
+    </div>
+  </section>
+
+  <!-- 7 -->
+  <section class="slide">
+    <div class="slide-inner">
+      <div class="eyebrow">Vamos começar</div>
+      <h2>Descubra o número da sua empresa <span class="accent">antes da reforma começar.</span></h2>
+      <p class="big">O primeiro passo é um diagnóstico rápido. Em dois dias úteis você tem a leitura do impacto.</p>
+      <div class="contact-grid">
+        <div><span class="l">Falar agora</span><span class="v ed">[(00) 00000-0000]</span></div>
+        <div><span class="l">E-mail</span><span class="v ed">[seu-email@dominio.com]</span></div>
+        <div><span class="l">Testar a ferramenta</span><span class="v">bussola-tributaria-demo</span></div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<div class="ctrl">
+  <button id="prev" aria-label="Anterior"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>
+  <div class="dots" id="dots"></div>
+  <span class="counter" id="counter"></span>
+  <button id="next" aria-label="Próximo"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></button>
+</div>
+<div class="kbd-hint">← → para navegar</div>
+
+<script>
+  const slides=[...document.querySelectorAll('.slide')];
+  const dotsEl=document.getElementById('dots');
+  const counter=document.getElementById('counter');
+  const progress=document.getElementById('progress');
+  let i=0;
+  slides.forEach((_,k)=>{ const b=document.createElement('button'); b.className='dot'+(k===0?' on':''); b.addEventListener('click',()=>go(k)); dotsEl.appendChild(b); });
+  const dots=[...dotsEl.children];
+  function go(n){
+    i=Math.max(0,Math.min(slides.length-1,n));
+    slides.forEach((s,k)=>s.classList.toggle('active',k===i));
+    dots.forEach((d,k)=>d.classList.toggle('on',k===i));
+    counter.textContent=`${i+1} / ${slides.length}`;
+    progress.style.width=`${(i+1)/slides.length*100}%`;
+  }
+  document.getElementById('next').addEventListener('click',()=>go(i+1));
+  document.getElementById('prev').addEventListener('click',()=>go(i-1));
+  addEventListener('keydown',e=>{
+    if(e.key==='ArrowRight'||e.key==='PageDown'||e.key===' ') { e.preventDefault(); go(i+1); }
+    if(e.key==='ArrowLeft'||e.key==='PageUp') { e.preventDefault(); go(i-1); }
+    if(e.key==='Home') go(0); if(e.key==='End') go(slides.length-1);
+  });
+  const root=document.documentElement;
+  const darkNow=()=>{ const t=root.getAttribute('data-theme'); return t==='dark'||(!t&&matchMedia('(prefers-color-scheme:dark)').matches); };
+  document.getElementById('themeBtn').addEventListener('click',()=>root.setAttribute('data-theme',darkNow()?'light':'dark'));
+  document.getElementById('printBtn').addEventListener('click',()=>window.print());
+  go(0);
+</script>
