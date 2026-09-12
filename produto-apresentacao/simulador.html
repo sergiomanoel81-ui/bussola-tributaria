@@ -292,6 +292,31 @@
   footer .wrap{max-width:1180px}
   footer b{color:var(--ink-2)}
 
+  /* results actions + lead form */
+  .results-actions{display:flex; justify-content:flex-end; gap:10px}
+  .lead{display:flex; flex-direction:column; gap:12px; position:relative; max-width:640px}
+  .lead-row{display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px}
+  @media (max-width:640px){ .lead-row{grid-template-columns:1fr} }
+  .lead input{border:1px solid rgba(255,255,255,.35); background:rgba(255,255,255,.14); color:#fff; border-radius:10px; padding:12px 13px; font:inherit; font-size:.92rem}
+  .lead input::placeholder{color:rgba(255,255,255,.72)}
+  :root[data-theme="dark"] .lead input, :root:not([data-theme="light"]) .lead input{border-color:rgba(0,0,0,.25); background:rgba(0,0,0,.18); color:#0a1411}
+  :root[data-theme="dark"] .lead input::placeholder, :root:not([data-theme="light"]) .lead input::placeholder{color:rgba(10,20,17,.6)}
+  .lead input:focus{outline:2px solid #fff; outline-offset:1px}
+  .lead .cbtn{align-self:flex-start; border:0; cursor:pointer}
+  .lead-note{font-size:.82rem; color:rgba(255,255,255,.92)}
+  :root[data-theme="dark"] .lead-note, :root:not([data-theme="light"]) .lead-note{color:rgba(10,20,17,.8)}
+
+  .print-only{display:none}
+  @media print{
+    header.top, .panel, .cta, .results-actions, .sup-tools, .migrate, .sup-add, .import-note, .lock-banner, footer, .modal-bg{display:none!important}
+    .layout{grid-template-columns:1fr!important; padding:0!important}
+    body{background:#fff}
+    .results{gap:16px}
+    .card,.verdict,.kpi,.factor,.sup-stat{box-shadow:none!important; border:1px solid #bbb!important; break-inside:avoid}
+    .print-only{display:block!important; margin-bottom:6px}
+    .print-only h1{font-size:1.3rem; margin:0} .print-only .pmeta{font-size:.8rem; color:#555}
+  }
+
   @media (prefers-reduced-motion:reduce){ *{transition:none !important} }
 </style>
 
@@ -388,6 +413,13 @@
 
     <!-- RESULTS -->
     <main class="results">
+      <div class="print-only" id="printHead">
+        <h1>Bússola Tributária — Diagnóstico da Reforma</h1>
+        <div class="pmeta" id="printMeta"></div>
+      </div>
+      <div class="results-actions">
+        <button class="tool-btn ghost" id="pdfBtn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M8 11l4 4 4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>Baixar diagnóstico (PDF)</button>
+      </div>
       <section class="verdict" id="verdict" data-dir="up">
         <div class="vk">Veredito da simulação</div>
         <h2 id="verdictText">—</h2>
@@ -511,7 +543,15 @@
           <li>✓ Projeção ano a ano até 2033</li>
           <li>✓ Plano de créditos e precificação</li>
         </ul>
-        <a class="cbtn" id="ctaBtn" href="#">Falar com um especialista →</a>
+        <form class="lead" id="leadForm">
+          <div class="lead-row">
+            <input type="text" id="leadNome" placeholder="Seu nome" required>
+            <input type="text" id="leadEmpresa" placeholder="Empresa (opcional)">
+            <input type="text" id="leadContato" placeholder="WhatsApp ou e-mail" required>
+          </div>
+          <button type="submit" class="cbtn">Quero meu diagnóstico completo →</button>
+          <span class="lead-note" id="leadNote"></span>
+        </form>
       </section>
     </main>
   </div>
@@ -865,7 +905,41 @@
   function note(msg){ const n=$('importNote'); n.textContent=msg; n.className='import-note lock'; clearTimeout(note._t); note._t=setTimeout(()=>{n.textContent='';n.className='import-note';},7000); }
   function toCTA(){ const c=document.querySelector('.cta'); if(c) c.scrollIntoView({behavior:'smooth',block:'center'}); }
   $('importBtn').addEventListener('click', ()=>{ note('Importar planilha (.csv, .xlsx e NF-e) é um recurso da versão completa. Fale com um especialista para liberar.'); toCTA(); });
-  $('ctaBtn').addEventListener('click', e=>{ e.preventDefault(); const el=e.target; const old=el.innerHTML; el.textContent='✓ Em breve: agenda de diagnóstico'; setTimeout(()=>el.innerHTML=old,2200); });
+  // ---- destino dos leads (troque para o e-mail/WhatsApp comercial) ----
+  const LEAD_EMAIL = 'sergiomanoel81@gmail.com';
+
+  function atualizaPrintMeta(){
+    const s=state, r=compute(s);
+    const d=new Date();
+    $('printMeta').textContent = `${REGIME_NOME[s.regime]} · faturamento ${brl.format(s.fat)}/mês · carga hoje ${pct(r[isSimples(s.regime)?'SIMP':s.regime].carga)} → reforma ${pct(r[s.temIS?'REFIS':'REF'].carga)} · gerado em ${d.toLocaleDateString('pt-BR')}`;
+  }
+  $('pdfBtn').addEventListener('click', ()=>{ atualizaPrintMeta(); window.print(); });
+
+  $('leadForm').addEventListener('submit', e=>{
+    e.preventDefault();
+    const nome=$('leadNome').value.trim(), empresa=$('leadEmpresa').value.trim(), contato=$('leadContato').value.trim();
+    if(!nome || !contato){ return; }
+    const s=state, r=compute(s);
+    const baseC=r[isSimples(s.regime)?'SIMP':s.regime].carga, refC=r[s.temIS?'REFIS':'REF'].carga;
+    const difAno=(r[s.temIS?'REFIS':'REF'].liq - r[isSimples(s.regime)?'SIMP':s.regime].liq)*12;
+    const assunto=`Diagnóstico Reforma — ${empresa||nome}`;
+    const corpo=
+`Olá! Quero o diagnóstico completo da Reforma Tributária.
+
+Nome: ${nome}
+Empresa: ${empresa||'(não informado)'}
+Contato: ${contato}
+
+--- Simulação feita na Bússola Tributária ---
+Regime atual: ${REGIME_NOME[s.regime]}
+Faturamento: ${brl.format(s.fat)}/mês
+Carga hoje: ${pct(baseC)}
+Carga na reforma: ${pct(refC)}
+Diferença estimada: ${(difAno>=0?'+':'−')+brl.format(Math.abs(difAno))}/ano`;
+    const url=`mailto:${LEAD_EMAIL}?subject=${encodeURIComponent(assunto)}&body=${encodeURIComponent(corpo)}`;
+    window.location.href=url;
+    $('leadNote').innerHTML=`Abrindo seu e-mail… se não abrir, escreva para <b>${LEAD_EMAIL}</b> com seus dados.`;
+  });
 
   // theme toggle
   const tRoot=document.documentElement;

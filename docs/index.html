@@ -278,6 +278,41 @@
   footer .wrap{max-width:1180px}
   footer b{color:var(--ink-2)}
 
+  /* CNPJ lookup */
+  .cnpj-lookup{margin-top:14px; padding:13px 15px; border:1px solid var(--line); background:var(--surface-2); border-radius:12px}
+  .cnpj-lookup .cl-label{font-size:.74rem; font-weight:600; letter-spacing:.02em; color:var(--ink-2); display:flex; align-items:center; gap:7px}
+  .cnpj-lookup .cl-label .pill{font-size:.6rem; letter-spacing:.06em; text-transform:uppercase; color:var(--accent); background:var(--accent-soft); border:1px solid color-mix(in srgb,var(--accent) 28%,transparent); padding:1px 7px; border-radius:99px; font-weight:700}
+  .cl-row{display:flex; gap:8px; margin-top:8px; flex-wrap:wrap}
+  .cl-row input{flex:1; min-width:170px; border:1px solid var(--line-2); background:var(--surface); color:var(--ink); border-radius:9px; padding:10px 12px; font-family:"IBM Plex Mono"; font-size:.9rem; font-variant-numeric:tabular-nums}
+  .cl-row input:focus{outline:2px solid var(--accent); outline-offset:1px; border-color:var(--accent)}
+  .cnpj-note{display:block; margin-top:8px; font-size:.8rem; font-weight:500; min-height:1.1em}
+  .cnpj-note.ok{color:var(--good)} .cnpj-note.err{color:var(--bad)} .cnpj-note.load{color:var(--ink-3)}
+
+  /* results actions + lead form */
+  .results-actions{display:flex; justify-content:flex-end; gap:10px}
+  .lead{display:flex; flex-direction:column; gap:12px; position:relative; max-width:640px}
+  .lead-row{display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px}
+  @media (max-width:640px){ .lead-row{grid-template-columns:1fr} }
+  .lead input{border:1px solid rgba(255,255,255,.35); background:rgba(255,255,255,.14); color:#fff; border-radius:10px; padding:12px 13px; font:inherit; font-size:.92rem}
+  .lead input::placeholder{color:rgba(255,255,255,.72)}
+  :root[data-theme="dark"] .lead input, :root:not([data-theme="light"]) .lead input{border-color:rgba(0,0,0,.25); background:rgba(0,0,0,.18); color:#0a1411}
+  :root[data-theme="dark"] .lead input::placeholder, :root:not([data-theme="light"]) .lead input::placeholder{color:rgba(10,20,17,.6)}
+  .lead input:focus{outline:2px solid #fff; outline-offset:1px}
+  .lead .cbtn{align-self:flex-start; border:0; cursor:pointer}
+  .lead-note{font-size:.82rem; color:rgba(255,255,255,.92)}
+  :root[data-theme="dark"] .lead-note, :root:not([data-theme="light"]) .lead-note{color:rgba(10,20,17,.8)}
+
+  .print-only{display:none}
+  @media print{
+    header.top, .panel, .cta, .results-actions, .sup-tools, .cnpj-lookup, .migrate, .sup-add, .import-note, footer, .modal-bg{display:none!important}
+    .layout{grid-template-columns:1fr!important; padding:0!important}
+    body{background:#fff}
+    .results{gap:16px}
+    .card,.verdict,.kpi,.factor,.sup-stat{box-shadow:none!important; border:1px solid #bbb!important; break-inside:avoid}
+    .print-only{display:block!important; margin-bottom:6px}
+    .print-only h1{font-size:1.3rem; margin:0} .print-only .pmeta{font-size:.8rem; color:#555}
+  }
+
   @media (prefers-reduced-motion:reduce){ *{transition:none !important} }
 </style>
 
@@ -371,6 +406,13 @@
 
     <!-- RESULTS -->
     <main class="results">
+      <div class="print-only" id="printHead">
+        <h1>Bússola Tributária — Diagnóstico da Reforma</h1>
+        <div class="pmeta" id="printMeta"></div>
+      </div>
+      <div class="results-actions">
+        <button class="tool-btn ghost" id="pdfBtn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M8 11l4 4 4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>Baixar diagnóstico (PDF)</button>
+      </div>
       <section class="verdict" id="verdict" data-dir="up">
         <div class="vk">Veredito da simulação</div>
         <h2 id="verdictText">—</h2>
@@ -419,6 +461,14 @@
             <button class="tool-btn ghost" id="modelBtn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg>Baixar modelo</button>
             <input type="file" id="fileInput" accept=".csv,.xlsx,.xls" hidden>
           </div>
+        </div>
+        <div class="cnpj-lookup">
+          <span class="cl-label">Buscar fornecedor por CNPJ <span class="pill">auto-regime</span></span>
+          <div class="cl-row">
+            <input type="text" id="cnpjInput" inputmode="numeric" placeholder="00.000.000/0000-00" maxlength="18" aria-label="CNPJ do fornecedor">
+            <button class="tool-btn" id="cnpjBtn">Buscar e adicionar</button>
+          </div>
+          <span class="cnpj-note" id="cnpjNote"></span>
         </div>
         <div class="sup-scroll">
           <table class="sup-table">
@@ -487,7 +537,15 @@
           <li>✓ Projeção ano a ano até 2033</li>
           <li>✓ Plano de créditos e precificação</li>
         </ul>
-        <a class="cbtn" id="ctaBtn" href="#">Falar com um especialista →</a>
+        <form class="lead" id="leadForm">
+          <div class="lead-row">
+            <input type="text" id="leadNome" placeholder="Seu nome" required>
+            <input type="text" id="leadEmpresa" placeholder="Empresa (opcional)">
+            <input type="text" id="leadContato" placeholder="WhatsApp ou e-mail" required>
+          </div>
+          <button type="submit" class="cbtn">Quero meu diagnóstico completo →</button>
+          <span class="lead-note" id="leadNote"></span>
+        </form>
       </section>
     </main>
   </div>
@@ -975,7 +1033,76 @@
     catch(_){ const ta=document.createElement('textarea'); ta.value=csv; ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta); ta.select(); try{document.execCommand('copy');}catch(e){} ta.remove(); }
     const l=$('copyLabel'); const old=l.textContent; l.textContent='Copiado ✓'; setTimeout(()=>l.textContent=old,1800);
   });
-  $('ctaBtn').addEventListener('click', e=>{ e.preventDefault(); const el=e.target; const old=el.innerHTML; el.textContent='✓ Em breve: agenda de diagnóstico'; setTimeout(()=>el.innerHTML=old,2200); });
+  // ---- destino dos leads (troque para o e-mail/WhatsApp comercial) ----
+  const LEAD_EMAIL = 'sergiomanoel81@gmail.com';
+
+  // ---- exportar diagnóstico (PDF via impressão) ----
+  function atualizaPrintMeta(){
+    const s=state, r=compute(s);
+    const d=new Date();
+    $('printMeta').textContent = `${REGIME_NOME[s.regime]} · faturamento ${brl.format(s.fat)}/mês · carga hoje ${pct(r[isSimples(s.regime)?'SIMP':s.regime].carga)} → reforma ${pct(r[s.temIS?'REFIS':'REF'].carga)} · gerado em ${d.toLocaleDateString('pt-BR')}`;
+  }
+  $('pdfBtn').addEventListener('click', ()=>{ atualizaPrintMeta(); window.print(); });
+
+  // ---- captura de lead ----
+  $('leadForm').addEventListener('submit', e=>{
+    e.preventDefault();
+    const nome=$('leadNome').value.trim(), empresa=$('leadEmpresa').value.trim(), contato=$('leadContato').value.trim();
+    if(!nome || !contato){ return; }
+    const s=state, r=compute(s);
+    const baseC=r[isSimples(s.regime)?'SIMP':s.regime].carga, refC=r[s.temIS?'REFIS':'REF'].carga;
+    const difAno=(r[s.temIS?'REFIS':'REF'].liq - r[isSimples(s.regime)?'SIMP':s.regime].liq)*12;
+    const assunto=`Diagnóstico Reforma — ${empresa||nome}`;
+    const corpo=
+`Olá! Quero o diagnóstico completo da Reforma Tributária.
+
+Nome: ${nome}
+Empresa: ${empresa||'(não informado)'}
+Contato: ${contato}
+
+--- Simulação feita na Bússola Tributária ---
+Regime atual: ${REGIME_NOME[s.regime]}
+Faturamento: ${brl.format(s.fat)}/mês
+Carga hoje: ${pct(baseC)}
+Carga na reforma: ${pct(refC)}
+Diferença estimada: ${(difAno>=0?'+':'−')+brl.format(Math.abs(difAno))}/ano`;
+    const url=`mailto:${LEAD_EMAIL}?subject=${encodeURIComponent(assunto)}&body=${encodeURIComponent(corpo)}`;
+    window.location.href=url;
+    $('leadNote').innerHTML=`Abrindo seu e-mail… se não abrir, escreva para <b>${LEAD_EMAIL}</b> com seus dados.`;
+  });
+
+  // ---- consulta de CNPJ (BrasilAPI, direto do navegador) ----
+  function maskCnpj(v){
+    const d=(v||'').replace(/\D/g,'').slice(0,14);
+    if(d.length>12) return `${d.slice(0,2)}.${d.slice(2,5)}.${d.slice(5,8)}/${d.slice(8,12)}-${d.slice(12)}`;
+    if(d.length>8)  return `${d.slice(0,2)}.${d.slice(2,5)}.${d.slice(5,8)}/${d.slice(8)}`;
+    if(d.length>5)  return `${d.slice(0,2)}.${d.slice(2,5)}.${d.slice(5)}`;
+    if(d.length>2)  return `${d.slice(0,2)}.${d.slice(2)}`;
+    return d;
+  }
+  function cnpjNote(msg,kind){ const n=$('cnpjNote'); n.textContent=msg; n.className='cnpj-note '+(kind||''); }
+  $('cnpjInput').addEventListener('input', e=>{ e.target.value=maskCnpj(e.target.value); });
+  $('cnpjInput').addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); buscarCnpj(); } });
+  $('cnpjBtn').addEventListener('click', buscarCnpj);
+  async function buscarCnpj(){
+    const doc=($('cnpjInput').value||'').replace(/\D/g,'');
+    if(doc.length!==14){ cnpjNote('Digite os 14 dígitos do CNPJ.','err'); return; }
+    cnpjNote('Consultando na Receita (BrasilAPI)…','load');
+    try{
+      const resp=await fetch(`https://brasilapi.com.br/api/cnpj/v1/${doc}`);
+      if(resp.status===404){ cnpjNote('CNPJ não encontrado.','err'); return; }
+      if(!resp.ok){ cnpjNote('Não foi possível consultar agora.','err'); return; }
+      const d=await resp.json();
+      const mei=!!d.opcao_pelo_mei, simples=!!d.opcao_pelo_simples;
+      const regime = (mei||simples) ? 'Unificado' : 'Regular';
+      const nome = (d.nome_fantasia || d.razao_social || ('CNPJ '+doc)).slice(0,60);
+      state.suppliers.push({ nome, tipo:'Mercadoria', valor:0, regime });
+      markTouched(); renderSuppliers(); render();
+      $('cnpjInput').value='';
+      const rot = regime==='Unificado' ? (mei?'MEI (Simples Unificado)':'Simples Unificado') : 'Regime regular';
+      cnpjNote(`✓ ${nome} adicionado como ${rot}. Informe o valor mensal na tabela.`,'ok');
+    }catch(err){ cnpjNote('Falha de rede na consulta. Tente novamente.','err'); }
+  }
 
   // theme toggle
   const tRoot=document.documentElement;
