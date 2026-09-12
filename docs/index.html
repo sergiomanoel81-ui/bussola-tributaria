@@ -1,8 +1,3 @@
-<!doctype html>
-<html lang="pt-BR">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Bússola Tributária</title>
 <meta name="description" content="Simulador do impacto da Reforma Tributária para pequenas e médias empresas.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -14,158 +9,980 @@
     --ink:#18211E; --ink-2:#4B5751; --ink-3:#7E877F;
     --line:#E4DFD4; --line-2:#D5CFC1;
     --accent:#0B5D54; --accent-soft:#0B5D5414;
-    --good:#1E8A5A; --warn:#B67B12; --warn-soft:#B67B1218; --bad:#C4462E;
+    --good:#1E8A5A; --good-soft:#1E8A5A18;
+    --bad:#C4462E; --bad-soft:#C4462E16;
+    --warn:#B67B12; --warn-soft:#B67B1218;
     --shadow:0 1px 2px rgba(24,33,30,.04), 0 6px 24px rgba(24,33,30,.06);
     --shadow-lg:0 2px 4px rgba(24,33,30,.06), 0 18px 48px rgba(24,33,30,.12);
   }
-  @media (prefers-color-scheme:dark){:root{
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){
+      --paper:#121816; --surface:#1A2220; --surface-2:#212B28;
+      --ink:#ECEAE2; --ink-2:#AEB6B0; --ink-3:#7C857F;
+      --line:#2A3532; --line-2:#374440;
+      --accent:#3FB8A8; --accent-soft:#3FB8A81f;
+      --good:#54C48A; --good-soft:#54C48a1f;
+      --bad:#E4795F; --bad-soft:#E4795f1f;
+      --warn:#D9A648; --warn-soft:#d9a6481f;
+      --shadow:0 1px 2px rgba(0,0,0,.3), 0 6px 24px rgba(0,0,0,.35);
+      --shadow-lg:0 2px 4px rgba(0,0,0,.35), 0 18px 48px rgba(0,0,0,.5);
+    }
+  }
+  :root[data-theme="dark"]{
     --paper:#121816; --surface:#1A2220; --surface-2:#212B28;
     --ink:#ECEAE2; --ink-2:#AEB6B0; --ink-3:#7C857F;
     --line:#2A3532; --line-2:#374440;
     --accent:#3FB8A8; --accent-soft:#3FB8A81f;
-    --good:#54C48A; --warn:#D9A648; --warn-soft:#d9a6481f; --bad:#E4795F;
+    --good:#54C48A; --good-soft:#54C48a1f;
+    --bad:#E4795F; --bad-soft:#E4795f1f;
+    --warn:#D9A648; --warn-soft:#d9a6481f;
     --shadow:0 1px 2px rgba(0,0,0,.3), 0 6px 24px rgba(0,0,0,.35);
     --shadow-lg:0 2px 4px rgba(0,0,0,.35), 0 18px 48px rgba(0,0,0,.5);
-  }}
-  *{box-sizing:border-box}
-  html{scroll-behavior:smooth}
-  body{margin:0; background:var(--paper); color:var(--ink); font-family:"IBM Plex Sans",system-ui,-apple-system,sans-serif; line-height:1.55; -webkit-font-smoothing:antialiased}
-  h1,h2,h3,.display{font-family:"Archivo",system-ui,sans-serif; text-wrap:balance; letter-spacing:-.02em}
-  .num{font-family:"IBM Plex Mono",monospace; font-variant-numeric:tabular-nums}
-  img{max-width:100%}
-  a{color:inherit}
-  .wrap{max-width:1080px; margin:0 auto; padding:0 22px}
+  }
 
-  header{border-bottom:1px solid var(--line); position:sticky; top:0; z-index:10; background:color-mix(in srgb,var(--paper) 84%,transparent); backdrop-filter:blur(8px)}
-  .nav{display:flex; align-items:center; justify-content:space-between; gap:16px; padding:14px 22px; max-width:1080px; margin:0 auto}
+  *{box-sizing:border-box}
+  [hidden]{display:none!important}
+  body{
+    background:var(--paper); color:var(--ink);
+    font-family:"IBM Plex Sans",system-ui,-apple-system,sans-serif;
+    line-height:1.5; margin:0;
+    -webkit-font-smoothing:antialiased;
+  }
+  .num{font-family:"IBM Plex Mono",ui-monospace,monospace; font-variant-numeric:tabular-nums}
+  h1,h2,h3,.display{font-family:"Archivo",system-ui,sans-serif; text-wrap:balance}
+
+  .wrap{max-width:1180px; margin:0 auto; padding:0 20px}
+
+  /* Header */
+  header.top{
+    border-bottom:1px solid var(--line);
+    background:color-mix(in srgb, var(--paper) 82%, transparent);
+    backdrop-filter:blur(8px);
+    position:sticky; top:0; z-index:20;
+  }
+  .top-inner{display:flex; align-items:center; justify-content:space-between; gap:16px; padding:14px 20px; max-width:1180px; margin:0 auto}
   .brand{display:flex; align-items:center; gap:11px}
   .mark{width:34px; height:34px; border-radius:9px; background:var(--accent); display:grid; place-items:center; flex:none; box-shadow:var(--shadow)}
-  .brand b{font-family:"Archivo"; font-weight:800; font-size:1.02rem; display:block; line-height:1.1}
-  .brand span{font-size:.72rem; color:var(--ink-3)}
-  .nav-cta{font-size:.85rem; font-weight:600; color:var(--accent); text-decoration:none; padding:8px 14px; border:1px solid var(--line-2); border-radius:9px}
-  .nav-cta:hover{border-color:var(--accent)}
+  .mark svg{width:20px; height:20px}
+  .brand b{font-family:"Archivo"; font-weight:800; font-size:1.02rem; letter-spacing:-.01em; display:block; line-height:1.1}
+  .brand span{font-size:.72rem; color:var(--ink-3); letter-spacing:.02em}
+  .theme-btn{border:1px solid var(--line-2); background:var(--surface); color:var(--ink-2); border-radius:8px; padding:7px 10px; font:inherit; font-size:.8rem; cursor:pointer; display:flex; align-items:center; gap:6px}
+  .theme-btn:hover{border-color:var(--accent); color:var(--accent)}
 
-  .hero{padding:72px 0 40px}
-  .eyebrow{display:inline-flex; align-items:center; gap:8px; font-size:.74rem; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--accent); background:var(--accent-soft); border:1px solid color-mix(in srgb,var(--accent) 24%,transparent); padding:6px 12px; border-radius:99px; margin-bottom:22px}
-  .hero h1{font-size:clamp(2rem,5.2vw,3.4rem); line-height:1.06; font-weight:800; margin:0 0 18px; max-width:16ch}
-  .hero h1 em{font-style:normal; color:var(--accent)}
-  .hero p.lead{font-size:clamp(1.02rem,2.2vw,1.24rem); color:var(--ink-2); max-width:56ch; margin:0 0 30px}
-  .btns{display:flex; gap:13px; flex-wrap:wrap}
-  .btn{display:inline-flex; align-items:center; gap:9px; font-family:"Archivo"; font-weight:700; font-size:.98rem; text-decoration:none; padding:14px 24px; border-radius:12px; border:1px solid transparent; cursor:pointer}
-  .btn-primary{background:var(--accent); color:#fff; box-shadow:var(--shadow-lg)}
-  @media (prefers-color-scheme:dark){.btn-primary{color:#0a1411}}
-  .btn-primary:hover{filter:brightness(1.06); transform:translateY(-1px)}
-  .btn-ghost{background:var(--surface); color:var(--ink); border-color:var(--line-2)}
-  .btn-ghost:hover{border-color:var(--accent); color:var(--accent)}
+  /* Layout */
+  .layout{display:grid; grid-template-columns:340px 1fr; gap:26px; padding:26px 0 60px}
+  @media (max-width:900px){ .layout{grid-template-columns:1fr; gap:20px} }
 
-  .strip{display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:16px; overflow:hidden; margin:16px 0 8px; box-shadow:var(--shadow)}
-  @media (max-width:720px){.strip{grid-template-columns:1fr}}
-  .cell{background:var(--surface); padding:24px}
-  .cell .k{font-family:"Archivo"; font-weight:800; font-size:1.9rem; color:var(--accent); line-height:1; margin-bottom:8px}
-  .cell .t{font-weight:600; font-size:.95rem; margin-bottom:4px}
-  .cell .s{font-size:.85rem; color:var(--ink-2)}
+  /* Panel */
+  .panel{background:var(--surface); border:1px solid var(--line); border-radius:16px; box-shadow:var(--shadow); padding:20px; align-self:start; position:sticky; top:78px}
+  @media (max-width:900px){ .panel{position:static} }
+  .panel .eyebrow{display:flex; align-items:center; justify-content:space-between; margin-bottom:4px}
+  .eyebrow-label{font-size:.7rem; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-3); font-weight:600}
+  .badge-ex{font-size:.66rem; letter-spacing:.06em; text-transform:uppercase; color:var(--warn); background:var(--warn-soft); border:1px solid color-mix(in srgb,var(--warn) 30%,transparent); padding:2px 7px; border-radius:99px; font-weight:600}
+  .panel h2{font-size:1.16rem; margin:.1rem 0 16px; letter-spacing:-.01em}
 
-  section.block{padding:56px 0}
-  .sec-eyebrow{font-size:.74rem; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-3); margin-bottom:10px}
-  .block h2{font-size:clamp(1.5rem,3.4vw,2.1rem); margin:0 0 34px; max-width:20ch}
+  .field{margin-bottom:14px}
+  .field > label{display:block; font-size:.8rem; font-weight:600; color:var(--ink-2); margin-bottom:6px}
+  .field .hint{font-size:.72rem; color:var(--ink-3); font-weight:400}
+  .input-money{position:relative}
+  .input-money::before{content:"R$"; position:absolute; left:12px; top:50%; transform:translateY(-50%); font-size:.82rem; color:var(--ink-3); font-family:"IBM Plex Mono"}
+  input[type=text], select{
+    width:100%; border:1px solid var(--line-2); background:var(--surface-2); color:var(--ink);
+    border-radius:9px; padding:10px 12px; font:inherit; font-size:.92rem;
+  }
+  .input-money input{padding-left:34px; font-family:"IBM Plex Mono"; font-variant-numeric:tabular-nums}
+  input:focus, select:focus{outline:2px solid var(--accent); outline-offset:1px; border-color:var(--accent)}
+  .row2{display:grid; grid-template-columns:1fr 1fr; gap:10px}
 
-  .cards{display:grid; grid-template-columns:1fr 1fr; gap:20px}
-  @media (max-width:720px){.cards{grid-template-columns:1fr}}
-  .pcard{background:var(--surface); border:1px solid var(--line); border-radius:18px; padding:28px; box-shadow:var(--shadow); display:flex; flex-direction:column}
-  .pcard.feat{border-color:color-mix(in srgb,var(--accent) 40%,transparent); box-shadow:var(--shadow-lg)}
-  .pcard .tag{align-self:flex-start; font-size:.68rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; padding:5px 11px; border-radius:99px; margin-bottom:16px}
-  .pcard.demo .tag{color:var(--warn); background:var(--warn-soft); border:1px solid color-mix(in srgb,var(--warn) 30%,transparent)}
-  .pcard.feat .tag{color:#fff; background:var(--accent)}
-  @media (prefers-color-scheme:dark){.pcard.feat .tag{color:#0a1411}}
-  .pcard h3{font-size:1.35rem; margin:0 0 6px}
-  .pcard .pd{font-size:.9rem; color:var(--ink-2); margin:0 0 18px}
-  .pcard ul{list-style:none; padding:0; margin:0 0 24px; display:flex; flex-direction:column; gap:10px; flex:1}
-  .pcard li{display:flex; gap:10px; align-items:flex-start; font-size:.9rem; color:var(--ink-2)}
-  .pcard li svg{flex:none; margin-top:2px}
-  .pcard li.off{color:var(--ink-3)}
-  .pcard .btn{width:100%; justify-content:center}
+  .seg{display:flex; background:var(--surface-2); border:1px solid var(--line-2); border-radius:9px; padding:3px; gap:3px}
+  .seg button{flex:1; border:0; background:transparent; color:var(--ink-2); font:inherit; font-size:.84rem; font-weight:600; padding:8px 6px; border-radius:6px; cursor:pointer}
+  .seg button[aria-pressed="true"]{background:var(--accent); color:#fff; box-shadow:var(--shadow)}
+  :root[data-theme="dark"] .seg button[aria-pressed="true"], :root:not([data-theme="light"]) .seg button[aria-pressed="true"]{color:#0b1512}
 
-  footer{border-top:1px solid var(--line); padding:30px 0 46px; color:var(--ink-3); font-size:.8rem; line-height:1.6}
+  .check{display:flex; gap:10px; align-items:flex-start; padding:11px 12px; border:1px solid var(--line-2); background:var(--surface-2); border-radius:9px; cursor:pointer}
+  .check input{margin-top:2px; accent-color:var(--accent); width:16px; height:16px}
+  .check .ct{font-size:.82rem; font-weight:600; color:var(--ink)}
+  .check .cs{font-size:.72rem; color:var(--ink-3); font-weight:400}
+
+  details.adv{margin-top:6px; border-top:1px dashed var(--line-2); padding-top:12px}
+  details.adv summary{cursor:pointer; font-size:.8rem; font-weight:600; color:var(--accent); list-style:none; display:flex; align-items:center; gap:6px}
+  details.adv summary::-webkit-details-marker{display:none}
+  details.adv summary .chev{transition:transform .2s}
+  details.adv[open] summary .chev{transform:rotate(90deg)}
+  .adv-grid{margin-top:12px}
+  .mini{margin-bottom:11px}
+  .mini label{display:flex; justify-content:space-between; font-size:.78rem; color:var(--ink-2); font-weight:500; margin-bottom:5px}
+  .mini label .v{font-family:"IBM Plex Mono"; color:var(--ink); font-weight:600}
+  input[type=range]{width:100%; accent-color:var(--accent); margin:0}
+  .reset{margin-top:14px; width:100%; border:1px solid var(--line-2); background:transparent; color:var(--ink-2); font:inherit; font-size:.8rem; font-weight:600; padding:9px; border-radius:9px; cursor:pointer}
+  .reset:hover{border-color:var(--accent); color:var(--accent)}
+
+  /* Results */
+  .results{display:flex; flex-direction:column; gap:22px; min-width:0}
+
+  .verdict{border-radius:18px; padding:24px 26px; box-shadow:var(--shadow-lg); border:1px solid var(--line); position:relative; overflow:hidden; background:var(--surface)}
+  .verdict::before{content:""; position:absolute; inset:0 auto 0 0; width:6px}
+  .verdict[data-dir="up"]::before{background:var(--warn)}
+  .verdict[data-dir="down"]::before{background:var(--good)}
+  .verdict[data-dir="flat"]::before{background:var(--ink-3)}
+  .verdict .vk{font-size:.72rem; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-3); font-weight:600; margin-bottom:8px}
+  .verdict h2{font-size:clamp(1.4rem,3.2vw,2.15rem); line-height:1.12; letter-spacing:-.02em; margin:0 0 14px; max-width:24ch}
+  .verdict h2 em{font-style:normal; padding:0 .12em}
+  .verdict[data-dir="up"] h2 em{color:var(--warn)}
+  .verdict[data-dir="down"] h2 em{color:var(--good)}
+  .verdict .sub{color:var(--ink-2); font-size:.94rem; max-width:56ch}
+  .verdict .sub b{color:var(--ink)}
+  .ctx-notes{display:flex; flex-direction:column; gap:8px; margin-top:16px}
+  .ctx-notes:empty{display:none}
+  .ctx-note{display:flex; gap:9px; align-items:flex-start; font-size:.83rem; line-height:1.45; color:var(--ink-2); padding:10px 12px; border-radius:10px; border:1px solid var(--line)}
+  .ctx-note.warn{background:var(--warn-soft); border-color:color-mix(in srgb,var(--warn) 30%,transparent)}
+  .ctx-note.info{background:var(--surface-2)}
+  .ctx-note b{color:var(--ink)}
+  .ctx-note svg{flex:none; margin-top:1px}
+
+  .kpis{display:grid; grid-template-columns:repeat(3,1fr); gap:14px}
+  @media (max-width:560px){ .kpis{grid-template-columns:1fr} }
+  .kpi{background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:16px 18px; box-shadow:var(--shadow)}
+  .kpi .kl{font-size:.74rem; color:var(--ink-3); font-weight:600; letter-spacing:.01em; margin-bottom:7px; display:flex; align-items:center; gap:6px}
+  .kpi .kv{font-family:"IBM Plex Mono"; font-size:1.5rem; font-weight:600; letter-spacing:-.02em; line-height:1}
+  .kpi .kd{font-size:.76rem; color:var(--ink-3); margin-top:6px}
+  .dot{width:8px; height:8px; border-radius:99px; flex:none}
+
+  .card{background:var(--surface); border:1px solid var(--line); border-radius:16px; box-shadow:var(--shadow); padding:22px 24px}
+  .card h3{font-size:1.06rem; margin:0 0 3px; letter-spacing:-.01em}
+  .card .desc{font-size:.82rem; color:var(--ink-3); margin:0 0 18px}
+
+  /* Bars */
+  .bars{display:flex; flex-direction:column; gap:14px}
+  .bar-row{display:grid; grid-template-columns:132px 1fr 92px; gap:14px; align-items:center}
+  @media (max-width:560px){ .bar-row{grid-template-columns:1fr auto; gap:5px 12px} .bar-row .bar-track{grid-column:1/-1} }
+  .bar-cash{font-family:"IBM Plex Mono"; font-size:.82rem; color:var(--ink-2); text-align:right; font-variant-numeric:tabular-nums}
+  .bar-name{font-size:.84rem; font-weight:600; display:flex; align-items:center; gap:8px; color:var(--ink)}
+  .bar-name .tag{font-size:.64rem; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-3); font-weight:600}
+  .bar-track{position:relative; background:var(--surface-2); border-radius:8px; height:38px; overflow:hidden; border:1px solid var(--line)}
+  .bar-fill{position:absolute; left:0; top:0; bottom:0; border-radius:0 8px 8px 0; width:0; transition:width .5s cubic-bezier(.22,.61,.36,1); display:flex; align-items:center; justify-content:flex-end; padding-right:12px; min-width:2px}
+  .bar-fill .pct{font-family:"IBM Plex Mono"; font-weight:600; font-size:.9rem; color:#fff; white-space:nowrap}
+  .bar-fill.light-txt .pct{color:#fff}
+  .bar-val{position:absolute; right:12px; top:50%; transform:translateY(-50%); font-family:"IBM Plex Mono"; font-size:.78rem; color:var(--ink-3)}
+  .bar-fill.f-base{background:linear-gradient(90deg, color-mix(in srgb,var(--accent) 82%,#000 4%), var(--accent))}
+  .bar-fill.f-alt{background:linear-gradient(90deg,#8a8f79,#a6ab93)}
+  .bar-fill.f-good{background:linear-gradient(90deg, color-mix(in srgb,var(--good) 85%,#000 5%), var(--good))}
+  .bar-fill.f-bad{background:linear-gradient(90deg, color-mix(in srgb,var(--warn) 85%,#000 5%), var(--warn))}
+
+  .legend{display:flex; flex-wrap:wrap; gap:14px; margin-top:18px; padding-top:16px; border-top:1px solid var(--line)}
+  .legend span{display:flex; align-items:center; gap:7px; font-size:.76rem; color:var(--ink-2)}
+  .legend i{width:11px; height:11px; border-radius:3px; flex:none}
+
+  /* sensitivity */
+  .sens-wrap{overflow-x:auto}
+  svg.chart{display:block; width:100%; min-width:480px; height:auto}
+  .chart text{font-family:"IBM Plex Sans"; fill:var(--ink-2)}
+  .chart .axis{stroke:var(--line-2); stroke-width:1}
+  .chart .grid{stroke:var(--line); stroke-width:1}
+  .chart .baseline{stroke:var(--ink-3); stroke-width:1.5; stroke-dasharray:5 4}
+
+  /* explain */
+  .factors{display:grid; grid-template-columns:1fr 1fr; gap:14px}
+  @media (max-width:560px){ .factors{grid-template-columns:1fr} }
+  .factor{border:1px solid var(--line); border-radius:12px; padding:15px 16px; background:var(--surface-2)}
+  .factor .fh{display:flex; align-items:center; gap:9px; margin-bottom:7px}
+  .factor .fi{width:30px; height:30px; border-radius:8px; display:grid; place-items:center; flex:none}
+  .factor .fh b{font-size:.9rem}
+  .factor p{margin:0; font-size:.82rem; color:var(--ink-2); line-height:1.5}
+  .factor .fv{font-family:"IBM Plex Mono"; font-weight:600; color:var(--ink)}
+
+  /* Suppliers module */
+  .sup-head{display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap}
+  .sup-head > div:first-child{flex:1 1 300px}
+  .sup-tools{display:flex; gap:8px; flex-wrap:wrap}
+  .tool-btn{display:inline-flex; align-items:center; gap:7px; border:1px solid var(--accent); background:var(--accent); color:#fff; font:inherit; font-size:.8rem; font-weight:600; padding:9px 13px; border-radius:9px; cursor:pointer; white-space:nowrap}
+  :root[data-theme="dark"] .tool-btn, :root:not([data-theme="light"]) .tool-btn{color:#0b1512}
+  .tool-btn:hover{filter:brightness(1.06)}
+  .tool-btn.ghost{background:transparent; color:var(--accent)}
+  .tool-btn.ghost:hover{background:var(--accent-soft); filter:none}
+  .import-note{display:inline-block; margin-left:12px; font-size:.8rem; font-weight:600}
+  .import-note.ok{color:var(--good)} .import-note.err{color:var(--bad)}
+  .sup-pct{font-family:"IBM Plex Mono"; font-size:.82rem; font-weight:600; font-variant-numeric:tabular-nums}
+  .sup-pct.zero{color:var(--ink-3)} .sup-pct.part{color:var(--warn)} .sup-pct.full{color:var(--good)}
+
+  /* modal */
+  .modal-bg{position:fixed; inset:0; background:rgba(12,16,15,.55); backdrop-filter:blur(3px); display:grid; place-items:center; z-index:60; padding:20px}
+  .modal{background:var(--surface); border:1px solid var(--line); border-radius:16px; box-shadow:var(--shadow-lg); max-width:560px; width:100%; padding:26px 28px; position:relative; max-height:88vh; overflow:auto}
+  .modal-x{position:absolute; top:14px; right:16px; border:0; background:transparent; color:var(--ink-3); font-size:1.5rem; line-height:1; cursor:pointer; padding:4px 8px; border-radius:8px}
+  .modal-x:hover{background:var(--surface-2); color:var(--ink)}
+  .modal h3{margin:0 0 8px; font-size:1.2rem; letter-spacing:-.01em}
+  .modal-p{font-size:.88rem; color:var(--ink-2); margin:0 0 16px}
+  .modal-table-wrap{overflow-x:auto; border:1px solid var(--line); border-radius:10px}
+  .modal-table{width:100%; border-collapse:collapse; font-size:.8rem; min-width:420px}
+  .modal-table th{background:var(--surface-2); text-align:left; padding:9px 12px; font-weight:600; color:var(--ink-2); border-bottom:1px solid var(--line); font-size:.72rem; text-transform:uppercase; letter-spacing:.05em}
+  .modal-table td{padding:8px 12px; border-bottom:1px solid var(--line); color:var(--ink)}
+  .modal-table tr:last-child td{border-bottom:0}
+  .modal-legend{list-style:none; padding:0; margin:14px 0 18px; display:flex; flex-direction:column; gap:6px; font-size:.82rem; color:var(--ink-2)}
+  .modal-legend code{font-family:"IBM Plex Mono"; font-size:.78rem; background:var(--surface-2); padding:1px 6px; border-radius:5px; color:var(--accent)}
+  .modal-actions{display:flex; gap:10px; flex-wrap:wrap}
+  .modal-hint{font-size:.76rem; color:var(--ink-3); margin:16px 0 0; line-height:1.5}
+  .modal-err{font-size:.8rem; color:var(--bad); margin:12px 0 0; font-weight:500}
+  .sup-table{width:100%; border-collapse:collapse; margin-top:6px}
+  .sup-table th{font-size:.68rem; text-transform:uppercase; letter-spacing:.07em; color:var(--ink-3); font-weight:600; text-align:left; padding:0 10px 9px; border-bottom:1px solid var(--line)}
+  .sup-table th.r, .sup-table td.r{text-align:right}
+  .sup-table td{padding:7px 10px; border-bottom:1px solid var(--line)}
+  .sup-table tr:last-child td{border-bottom:0}
+  .sup-table input.sname{width:100%; min-width:120px; border:1px solid transparent; background:transparent; color:var(--ink); border-radius:7px; padding:7px 9px; font:inherit; font-size:.86rem; font-weight:500}
+  .sup-table input.sname:hover{border-color:var(--line-2)}
+  .sup-table input.sname:focus{border-color:var(--accent); background:var(--surface-2); outline:none}
+  .sup-table .sval{position:relative}
+  .sup-table .sval input{width:104px; border:1px solid var(--line-2); background:var(--surface-2); color:var(--ink); border-radius:7px; padding:7px 9px 7px 26px; font-family:"IBM Plex Mono"; font-size:.84rem; text-align:right; font-variant-numeric:tabular-nums}
+  .sup-table .sval::before{content:"R$"; position:absolute; left:9px; top:50%; transform:translateY(-50%); font-size:.72rem; color:var(--ink-3); font-family:"IBM Plex Mono"}
+  .sup-table select.sreg, .sup-table select.stipo{border:1px solid var(--line-2); background:var(--surface-2); color:var(--ink); border-radius:7px; padding:7px 8px; font:inherit; font-size:.82rem; cursor:pointer}
+  .sup-cred{font-family:"IBM Plex Mono"; font-weight:600; font-size:.86rem; font-variant-numeric:tabular-nums}
+  .sup-cred.zero{color:var(--ink-3)}
+  .sup-cred.part{color:var(--warn)}
+  .sup-cred.full{color:var(--good)}
+  .regchip{display:inline-flex; align-items:center; gap:5px; font-size:.66rem; color:var(--ink-3); margin-top:3px}
+  .regchip i{width:6px;height:6px;border-radius:99px;flex:none}
+  .sup-del{border:0; background:transparent; color:var(--ink-3); cursor:pointer; font-size:1.1rem; line-height:1; padding:4px 6px; border-radius:6px}
+  .sup-del:hover{color:var(--bad); background:var(--bad-soft)}
+  .sup-add{margin-top:12px; border:1px dashed var(--line-2); background:transparent; color:var(--accent); font:inherit; font-size:.82rem; font-weight:600; padding:9px 14px; border-radius:9px; cursor:pointer; display:inline-flex; align-items:center; gap:7px}
+  .sup-add:hover{background:var(--accent-soft); border-color:var(--accent)}
+  .sup-foot{display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:18px}
+  @media (max-width:560px){ .sup-foot{grid-template-columns:1fr} }
+  .sup-stat{border-radius:12px; padding:15px 16px; border:1px solid var(--line)}
+  .sup-stat.leak{background:var(--warn-soft); border-color:color-mix(in srgb,var(--warn) 30%,transparent)}
+  .sup-stat.tot{background:var(--good-soft); border-color:color-mix(in srgb,var(--good) 28%,transparent)}
+  .sup-stat .sl{font-size:.74rem; font-weight:600; color:var(--ink-2); margin-bottom:5px; display:flex; align-items:center; gap:7px}
+  .sup-stat .sv{font-family:"IBM Plex Mono"; font-size:1.32rem; font-weight:600; letter-spacing:-.01em}
+  .sup-stat.leak .sv{color:var(--warn)}
+  .sup-stat.tot .sv{color:var(--good)}
+  .sup-stat .sd{font-size:.76rem; color:var(--ink-2); margin-top:5px}
+  .migrate{display:flex; gap:11px; align-items:flex-start; padding:13px 15px; border:1px solid var(--accent); background:var(--accent-soft); border-radius:11px; margin-top:16px; cursor:pointer}
+  .migrate input{margin-top:2px; accent-color:var(--accent); width:17px; height:17px; flex:none}
+  .migrate .mt{font-size:.86rem; font-weight:600; color:var(--ink)}
+  .migrate .ms{font-size:.78rem; color:var(--ink-2); margin-top:2px}
+  .migrate .ms b{color:var(--accent)}
+  .sup-scroll{overflow-x:auto}
+  .sup-table{min-width:560px}
+
+  /* CTA */
+  .cta{background:var(--accent); border-radius:18px; padding:30px 32px; color:#fff; box-shadow:var(--shadow-lg); position:relative; overflow:hidden}
+  :root[data-theme="dark"] .cta, :root:not([data-theme="light"]) .cta{color:#0a1411}
+  .cta .glow{position:absolute; width:280px; height:280px; border-radius:50%; background:rgba(255,255,255,.12); right:-70px; top:-90px; filter:blur(10px)}
+  .cta h3{font-size:1.5rem; margin:0 0 8px; letter-spacing:-.02em; position:relative; color:inherit}
+  .cta p{margin:0 0 18px; font-size:.95rem; opacity:.92; max-width:60ch; position:relative}
+  .cta .cbtn{display:inline-flex; align-items:center; gap:9px; background:#fff; color:var(--accent); font-family:"Archivo"; font-weight:700; font-size:.95rem; border:0; border-radius:11px; padding:13px 22px; cursor:pointer; text-decoration:none; position:relative; box-shadow:0 6px 20px rgba(0,0,0,.18)}
+  :root[data-theme="dark"] .cta .cbtn, :root:not([data-theme="light"]) .cta .cbtn{background:#0a1411; color:var(--accent)}
+  .cta .cbtn:hover{transform:translateY(-1px)}
+  .cta ul{position:relative; margin:0 0 20px; padding:0; list-style:none; display:flex; flex-wrap:wrap; gap:8px 18px}
+  .cta ul li{font-size:.84rem; display:flex; align-items:center; gap:7px; opacity:.95}
+
+  footer{border-top:1px solid var(--line); padding:26px 0 40px; color:var(--ink-3); font-size:.78rem; line-height:1.6}
+  footer .wrap{max-width:1180px}
   footer b{color:var(--ink-2)}
-  @media (prefers-reduced-motion:reduce){*{transition:none!important; scroll-behavior:auto}}
-</style>
-</head>
-<body>
 
-<header>
-  <div class="nav">
+  @media (prefers-reduced-motion:reduce){ *{transition:none !important} }
+</style>
+
+<header class="top">
+  <div class="top-inner">
     <div class="brand">
-      <div class="mark"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polygon points="16.2 7.8 13.4 13.4 7.8 16.2 10.6 10.6" fill="#fff" stroke="none"/></svg></div>
-      <div><b>Bússola Tributária</b><span>Impacto da Reforma na sua empresa</span></div>
+      <div class="mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polygon points="16.2 7.8 13.4 13.4 7.8 16.2 10.6 10.6" fill="#fff" stroke="none"/></svg>
+      </div>
+      <div>
+        <b>Bússola Tributária</b>
+        <span>Impacto da Reforma na sua empresa</span>
+      </div>
     </div>
-    <a class="nav-cta" href="demo/">Testar agora →</a>
+    <button class="theme-btn" id="themeBtn" aria-label="Alternar tema">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      <span id="themeLabel">Tema</span>
+    </button>
   </div>
 </header>
 
-<main class="wrap">
-  <section class="hero">
-    <span class="eyebrow">Reforma Tributária · transição 2026–2033</span>
-    <h1>Sua empresa vai <em>pagar mais</em> ou <em>menos</em> com a reforma?</h1>
-    <p class="lead">Descubra em minutos. A Bússola Tributária simula o impacto do novo IVA (IBS + CBS) e do Imposto Seletivo no seu negócio — e mostra quanto crédito você ganha ou perde conforme os seus fornecedores.</p>
-    <div class="btns">
-      <a class="btn btn-primary" href="demo/">Testar a demonstração</a>
-      <a class="btn btn-ghost" href="completo/">Abrir a versão completa</a>
-    </div>
-  </section>
+<div class="wrap">
+  <div class="layout">
 
-  <div class="strip">
-    <div class="cell">
-      <div class="k">4</div>
-      <div class="t">Cenários lado a lado</div>
-      <div class="s">Lucro Presumido, Lucro Real, Reforma e Reforma + Seletivo — com a carga efetiva de cada um.</div>
-    </div>
-    <div class="cell">
-      <div class="k">R$</div>
-      <div class="t">Mapa de créditos</div>
-      <div class="s">Fornecedor a fornecedor: veja quanto crédito você aproveita e quanto perde comprando do Simples.</div>
-    </div>
-    <div class="cell">
-      <div class="k">%</div>
-      <div class="t">Sensibilidade</div>
-      <div class="s">A alíquota do IVA ainda está em definição — simule diferentes cenários e planeje antes de 2026.</div>
-    </div>
+    <!-- INPUT PANEL -->
+    <aside class="panel">
+      <div class="eyebrow">
+        <span class="eyebrow-label">Dados da empresa</span>
+        <span class="badge-ex" id="exBadge">Exemplo</span>
+      </div>
+      <h2>Simule o seu caso</h2>
+
+      <div class="field">
+        <label for="fat">Faturamento mensal</label>
+        <div class="input-money"><input type="text" id="fat" inputmode="numeric" value="100.000"></div>
+      </div>
+
+      <div class="field">
+        <label for="regimeSel">Regime atual</label>
+        <select id="regimeSel">
+          <option value="LP">Lucro Presumido</option>
+          <option value="LR">Lucro Real</option>
+          <option value="SH">Simples Híbrido</option>
+          <option value="SU">Simples Unificado / MEI</option>
+        </select>
+      </div>
+
+      <div class="field" id="simplesRateField" hidden>
+        <label for="simplesRate" style="display:flex; justify-content:space-between; align-items:baseline">Alíquota do Simples hoje (DAS) <span class="num" id="simplesRateV" style="color:var(--ink); font-weight:600">10%</span></label>
+        <input type="range" id="simplesRate" min="4" max="33" step="0.5" value="10">
+        <span class="hint">% do faturamento que você paga hoje no DAS</span>
+      </div>
+
+      <div class="field">
+        <label class="check">
+          <input type="checkbox" id="temIS" checked>
+          <span>
+            <span class="ct">Meu produto tem Imposto Seletivo</span><br>
+            <span class="cs">Bebidas alcoólicas, cigarros, açucarados, etc. (o “imposto do pecado”)</span>
+          </span>
+        </label>
+      </div>
+
+      <div class="field">
+        <label class="check">
+          <input type="checkbox" id="b2c">
+          <span>
+            <span class="ct">Vendo para consumidor final (B2C)</span><br>
+            <span class="cs">Em B2C o cliente não aproveita o crédito do IVA — ele vira custo no preço.</span>
+          </span>
+        </label>
+      </div>
+
+      <details class="adv">
+        <summary><span class="chev">›</span> Premissas de alíquota (avançado)</summary>
+        <div class="adv-grid">
+          <div class="mini"><label for="iva">IVA — IBS + CBS <span class="v" id="ivaV">28%</span></label><input type="range" id="iva" min="18" max="32" step="0.5" value="28"></div>
+          <div class="mini"><label for="sel">Imposto Seletivo <span class="v" id="selV">20%</span></label><input type="range" id="sel" min="0" max="40" step="1" value="20"></div>
+          <div class="mini"><label for="simplesAprov">Crédito repassado pelo Simples Unificado <span class="v" id="simplesAprovV">0%</span></label><input type="range" id="simplesAprov" min="0" max="20" step="1" value="0"></div>
+          <div class="mini"><label for="ipi">IPI (regime atual) <span class="v" id="ipiV">15%</span></label><input type="range" id="ipi" min="0" max="30" step="1" value="15"></div>
+          <div class="mini"><label for="icms">ICMS (regime atual) <span class="v" id="icmsV">18%</span></label><input type="range" id="icms" min="0" max="25" step="1" value="18"></div>
+          <label class="check" style="margin-top:4px">
+            <input type="checkbox" id="isBase" checked>
+            <span><span class="ct">Seletivo entra na base do IVA</span><br><span class="cs">Aumenta o valor sobre o qual o IVA é calculado</span></span>
+          </label>
+        </div>
+      </details>
+
+      <button class="reset" id="resetBtn">↺ Restaurar dados de exemplo</button>
+    </aside>
+
+    <!-- RESULTS -->
+    <main class="results">
+      <section class="verdict" id="verdict" data-dir="up">
+        <div class="vk">Veredito da simulação</div>
+        <h2 id="verdictText">—</h2>
+        <p class="sub" id="verdictSub">—</p>
+        <div class="ctx-notes" id="ctxNotes"></div>
+      </section>
+
+      <section class="kpis">
+        <div class="kpi">
+          <div class="kl"><span class="dot" style="background:var(--accent)"></span>Carga hoje</div>
+          <div class="kv" id="kpiHoje">—</div>
+          <div class="kd" id="kpiHojeD">—</div>
+        </div>
+        <div class="kpi">
+          <div class="kl"><span class="dot" id="kpiRefDot"></span>Carga na reforma</div>
+          <div class="kv" id="kpiRef">—</div>
+          <div class="kd" id="kpiRefD">—</div>
+        </div>
+        <div class="kpi">
+          <div class="kl"><span class="dot" id="kpiDifDot"></span>Diferença por ano</div>
+          <div class="kv" id="kpiDif">—</div>
+          <div class="kd" id="kpiDifD">—</div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h3>Carga tributária efetiva por cenário</h3>
+        <p class="desc">Percentual do faturamento que vira imposto, já descontados os créditos. Passe o mouse para ver os valores em reais.</p>
+        <div class="bars" id="bars"></div>
+        <div class="legend">
+          <span><i style="background:var(--accent)"></i>Seu regime atual</span>
+          <span><i style="background:#a6ab93"></i>Alternativa atual</span>
+          <span><i style="background:var(--good)"></i>Reforma — alívio</span>
+          <span><i style="background:var(--warn)"></i>Reforma — aumento</span>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="sup-head">
+          <div>
+            <h3>Mapa de fornecedores e créditos</h3>
+            <p class="desc" style="margin-bottom:0">Na reforma, cada compra vira crédito — mas fornecedores do <b>Simples</b>, MEI ou isentos transferem <b>muito menos</b> crédito. Mapeie de quem você compra e veja quanto está deixando na mesa.</p>
+          </div>
+          <div class="sup-tools">
+            <button class="tool-btn" id="importBtn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M8 11l4 4 4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>Importar planilha</button>
+            <button class="tool-btn ghost" id="modelBtn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg>Baixar modelo</button>
+            <input type="file" id="fileInput" accept=".csv,.xlsx,.xls" hidden>
+          </div>
+        </div>
+        <div class="sup-scroll">
+          <table class="sup-table">
+            <thead>
+              <tr>
+                <th style="width:32%">Fornecedor / prestador</th>
+                <th style="width:15%">Fornece</th>
+                <th class="r" style="width:16%">Valor / mês</th>
+                <th style="width:17%">Regime</th>
+                <th class="r" style="width:9%">% créd.</th>
+                <th class="r" style="width:13%">Crédito gerado</th>
+                <th style="width:36px"></th>
+              </tr>
+            </thead>
+            <tbody id="supBody"></tbody>
+          </table>
+        </div>
+        <button class="sup-add" id="supAdd">＋ Adicionar fornecedor</button>
+        <span class="import-note" id="importNote"></span>
+
+        <div class="sup-foot">
+          <div class="sup-stat tot">
+            <div class="sl"><span class="dot" style="background:var(--good)"></span>Crédito que você aproveita</div>
+            <div class="sv" id="supTot">—</div>
+            <div class="sd" id="supTotD">—</div>
+          </div>
+          <div class="sup-stat leak">
+            <div class="sl"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--warn)" stroke-width="2.2" stroke-linecap="round"><path d="M10.3 3.2 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.2a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg>Crédito que você perde hoje</div>
+            <div class="sv" id="supLeak">—</div>
+            <div class="sd" id="supLeakD">—</div>
+          </div>
+        </div>
+
+        <label class="migrate">
+          <input type="checkbox" id="migrar">
+          <span>
+            <span class="mt">Simular todos os fornecedores no regime regular</span>
+            <span class="ms" id="migrarMs">Veja quanto sua empresa economizaria trocando fornecedores do Simples Unificado/MEI por regime regular ou Simples Híbrido.</span>
+          </span>
+        </label>
+      </section>
+
+      <div class="factors">
+        <div class="factor">
+          <div class="fh"><span class="fi" style="background:var(--good-soft)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--good)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span><b>Créditos que você recupera</b></div>
+          <p id="fCredText">Na reforma, o imposto pago nas suas compras vira crédito. Hoje isso é <span class="fv" id="fCred">—</span> por mês que reduzem a conta — o principal alívio do novo modelo.</p>
+        </div>
+        <div class="factor">
+          <div class="fh"><span class="fi" style="background:var(--warn-soft)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--warn)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.2 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.2a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg></span><b>Peso do Imposto Seletivo</b></div>
+          <p id="fSelText">O Seletivo adiciona <span class="fv" id="fSel">—</span> por mês. É o que decide se a reforma é boa ou ruim para o seu setor.</p>
+        </div>
+      </div>
+
+      <section class="card">
+        <h3>E se a alíquota do IVA for diferente?</h3>
+        <p class="desc">A alíquota final ainda está sendo definida na regulamentação. Veja como a sua carga muda conforme o IVA — a linha tracejada é a sua carga de hoje.</p>
+        <div class="sens-wrap"><svg class="chart" id="sensChart" viewBox="0 0 640 320" role="img" aria-label="Gráfico de sensibilidade da carga tributária ao IVA"></svg></div>
+      </section>
+
+      <section class="cta">
+        <div class="glow"></div>
+        <h3>Este é o diagnóstico rápido. E o laudo completo?</h3>
+        <p>A simulação usa premissas didáticas. O impacto real depende do seu CNAE, do cronograma de transição 2026–2033 e de um plano de aproveitamento de créditos feito para a sua operação.</p>
+        <ul>
+          <li>✓ Análise do seu CNAE e produtos</li>
+          <li>✓ Projeção ano a ano até 2033</li>
+          <li>✓ Plano de créditos e precificação</li>
+        </ul>
+        <a class="cbtn" id="ctaBtn" href="#">Falar com um especialista →</a>
+      </section>
+    </main>
   </div>
+</div>
 
-  <section class="block">
-    <div class="sec-eyebrow">Comece por aqui</div>
-    <h2>Escolha como quer usar a ferramenta</h2>
-    <div class="cards">
-      <div class="pcard demo">
-        <span class="tag">Grátis · demonstração</span>
-        <h3>Versão demonstração</h3>
-        <p class="pd">Ideal para ter uma primeira leitura do impacto da reforma no seu negócio.</p>
-        <ul>
-          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--good)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Comparação completa dos 4 cenários</li>
-          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--good)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Veredito e gráfico de sensibilidade</li>
-          <li class="off"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg> Até 3 fornecedores, sem importação</li>
-        </ul>
-        <a class="btn btn-ghost" href="demo/">Abrir demonstração →</a>
-      </div>
-      <div class="pcard feat">
-        <span class="tag">Ferramenta completa</span>
-        <h3>Versão completa</h3>
-        <p class="pd">O mapa completo de fornecedores e créditos, para uma análise de verdade.</p>
-        <ul>
-          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--good)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Fornecedores ilimitados, com % de crédito</li>
-          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--good)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Importar planilha (.csv / .xlsx) e baixar modelo</li>
-          <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--good)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Simulação de migração de fornecedores</li>
-        </ul>
-        <a class="btn btn-primary" href="completo/">Abrir versão completa →</a>
-      </div>
+<div class="modal-bg" id="modelModal" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modelTitle">
+    <button class="modal-x" id="modelClose" aria-label="Fechar">×</button>
+    <h3 id="modelTitle">Modelo de planilha de fornecedores</h3>
+    <p class="modal-p">Monte sua planilha com estas <b>4 colunas</b> (a primeira linha é o cabeçalho). Depois use <b>Importar planilha</b> para carregar. Aceita <b>.csv</b> e <b>.xlsx</b>.</p>
+    <div class="modal-table-wrap">
+      <table class="modal-table">
+        <thead><tr><th>Fornecedor</th><th>Fornece</th><th>Valor mensal</th><th>Regime</th></tr></thead>
+        <tbody>
+          <tr><td>Distribuidora de matéria-prima</td><td>Mercadoria</td><td>18000</td><td>Regular</td></tr>
+          <tr><td>Frete e logística</td><td>Serviço</td><td>6000</td><td>Regular</td></tr>
+          <tr><td>Embalagens</td><td>Mercadoria</td><td>9000</td><td>Simples</td></tr>
+          <tr><td>Materiais de uso e consumo</td><td>Mercadoria</td><td>3000</td><td>Isento</td></tr>
+        </tbody>
+      </table>
     </div>
-  </section>
-</main>
+    <ul class="modal-legend">
+      <li><b>Fornece:</b> <code>Mercadoria</code> ou <code>Serviço</code></li>
+      <li><b>Regime:</b> <code>Regular</code>, <code>Simples Híbrido</code>, <code>Simples Unificado</code> (MEI) ou <code>Isento</code></li>
+      <li><b>Valor mensal:</b> só números (ex.: 18000)</li>
+    </ul>
+    <div class="modal-actions">
+      <button class="tool-btn" id="dlXlsx"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M8 11l4 4 4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>Baixar modelo (.xlsx)</button>
+      <button class="tool-btn ghost" id="dlModel"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg>Baixar .csv</button>
+      <button class="tool-btn ghost" id="copyModel"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span id="copyLabel">Copiar</span></button>
+    </div>
+    <p class="modal-err" id="dlErr" hidden></p>
+    <p class="modal-hint">Dica: no Excel, salve como <b>CSV UTF-8</b>. As colunas podem estar em qualquer ordem — o sistema reconhece pelo nome do cabeçalho.</p>
+  </div>
+</div>
 
 <footer>
   <div class="wrap">
-    <b>Bússola Tributária</b> — ferramenta demonstrativa. As alíquotas (IVA e Imposto Seletivo) são premissas didáticas, não valores oficiais, e o modelo simplifica o regime atual para fins de comparação. Não substitui a análise de um contador. Base legal: EC 132/2023 e LC 214/2025 · transição 2026–2033.
+    <b>Bússola Tributária</b> — simulador demonstrativo. As alíquotas (IVA 28%, Seletivo 20%) são <b>premissas didáticas</b> baseadas em material de estudo, não valores oficiais. O modelo simplifica o regime atual para fins de comparação e não substitui a análise de um contador. Reforma Tributária: EC 132/2023 e LC 214/2025 · transição 2026–2033.
   </div>
 </footer>
 
-</body>
-</html>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+(function(){
+  "use strict";
+  const $ = id => document.getElementById(id);
+  const brl = new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL',maximumFractionDigits:0});
+  const brl2 = new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL',minimumFractionDigits:0,maximumFractionDigits:0});
+  const pct = n => (n*100).toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1})+'%';
+
+  const DEFAULTS = { fat:100000, regime:'LP', temIS:true, iva:28, sel:20, ipi:15, icms:18, isBase:true, migrar:false, simplesAprov:0, simplesRate:10, b2c:false };
+  const REGIME_NOME = { LP:'Lucro Presumido', LR:'Lucro Real', SH:'Simples Híbrido', SU:'Simples Unificado' };
+  const isSimples = r => r==='SH' || r==='SU';
+  const PIS_LP = 0.0365, PIS_LR = 0.0925;
+
+  // Fração do IVA da compra que se converte em crédito para o comprador, por regime do fornecedor.
+  // Regular: crédito pleno. Simples/MEI: crédito limitado ao efetivamente recolhido (ajustável). Isento/uso e consumo: nenhum.
+  // Regular e Simples Híbrido geram crédito pleno (IBS/CBS por fora). Simples Unificado/MEI: sem crédito na entrada, repasse pequeno (ajustável). Isento: nenhum.
+  function aprovOf(regime, s){ if(regime==='Regular'||regime==='Hibrido') return 1.0; if(regime==='Isento') return 0.0; return (s.simplesAprov||0)/100; }
+  const REG_LABEL = { Regular:'Regime regular', Hibrido:'Simples Híbrido', Unificado:'Simples Unificado / MEI', Simples:'Simples Unificado / MEI', Isento:'Isento / sem crédito' };
+  const REG_COLOR = { Regular:'var(--good)', Hibrido:'var(--good)', Unificado:'var(--warn)', Simples:'var(--warn)', Isento:'var(--ink-3)' };
+
+  const SUPPLIERS_DEFAULT = [
+    { nome:'Distribuidora de matéria-prima', tipo:'Mercadoria', valor:18000, regime:'Regular' },
+    { nome:'Frete e logística',              tipo:'Serviço',    valor:6000,  regime:'Regular' },
+    { nome:'Aluguel do imóvel comercial',    tipo:'Imóveis (locação/arrend.)', valor:6000, regime:'Hibrido' },
+    { nome:'Embalagens (Simples Unificado)', tipo:'Mercadoria', valor:9000,  regime:'Unificado' },
+    { nome:'Serviços terceirizados (MEI)',   tipo:'Serviço',    valor:4000,  regime:'Unificado' },
+    { nome:'Materiais de uso e consumo',     tipo:'Mercadoria', valor:3000,  regime:'Isento' },
+  ];
+  const cloneSup = arr => arr.map(x=>({...x}));
+
+  let state = {...DEFAULTS, suppliers: cloneSup(SUPPLIERS_DEFAULT)};
+
+  // ---- credit engine (fornecedor a fornecedor) ----
+  function computeCredit(s){
+    const iva = s.iva/100;
+    let compras=0, credit=0, potential=0;
+    const rows = s.suppliers.map(sp=>{
+      const ap = s.migrar ? 1.0 : aprovOf(sp.regime, s);
+      const c = sp.valor * iva * ap;
+      compras += sp.valor;
+      credit += c;
+      potential += sp.valor * iva;   // se todos fossem regime regular
+      return { ...sp, credito:c, ap };
+    });
+    return { compras, credit, potential, leak: Math.max(0, potential - credit), rows };
+  }
+
+  // ---- money input helpers ----
+  function parseMoney(str){ const n = parseInt(String(str).replace(/\D/g,''),10); return isNaN(n)?0:n; }
+  function fmtMoney(n){ return n.toLocaleString('pt-BR'); }
+
+  // ---- calculation engine ----
+  function compute(s){
+    const fat = s.fat, ipi=s.ipi/100, icms=s.icms/100, iva=s.iva/100, sel=s.sel/100;
+    const cc = computeCredit(s);
+    // Os cenários de reforma representam o regime regular / Simples Híbrido (que aproveita crédito).
+    // O Simples Unificado é tratado por nota: hoje não aproveita crédito; migrar para o Híbrido o libera.
+    const credito = cc.credit;
+    // regimes atuais
+    const lp = { imp: fat*ipi + fat*icms + fat*PIS_LP };
+    const lr = { imp: fat*ipi + fat*icms + fat*PIS_LR };
+    lp.liq = lp.imp; lr.liq = lr.imp;
+    const simpImp = fat * ((s.simplesRate||0)/100);   // DAS hoje (Simples)
+    // reforma sem IS
+    const rIVA = fat*iva;
+    const rSemIS = { bruto:rIVA, cred:credito, liq: Math.max(0, rIVA - credito) };
+    // reforma com IS
+    const impSel = fat*sel;
+    const baseIS = s.isBase ? fat + impSel : fat;
+    const rIVA2 = baseIS*iva;
+    const rComIS = { bruto:rIVA2 + impSel, sel:impSel, cred:credito, liq: Math.max(0, rIVA2 + impSel - credito) };
+
+    const each = v => ({ liq:v, carga: fat>0 ? v/fat : 0 });
+    return {
+      fat, credito, impSel, cc,
+      LP: each(lp.liq), LR: each(lr.liq), SIMP: each(simpImp),
+      REF: {...each(rSemIS.liq), cred:credito},
+      REFIS: {...each(rComIS.liq), cred:credito, sel:impSel},
+      nota:{ LP: fat+fat*ipi, REF: fat+rIVA, REFIS: fat+rIVA2 }
+    };
+  }
+
+  const REGIME_ICON_WARN = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--warn)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.2 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.2a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg>';
+  const ICON_INFO = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--ink-3)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.5h.01"/></svg>';
+
+  // ---- render ----
+  function render(){
+    const s = state, r = compute(s);
+    const baseKey = isSimples(s.regime) ? 'SIMP' : s.regime;   // LP, LR ou SIMP (DAS)
+    const base = r[baseKey];
+    const refKey = s.temIS ? 'REFIS' : 'REF';
+    const ref = r[refKey];
+
+    const diffMonth = ref.liq - base.liq;        // + = paga mais
+    const diffYear = diffMonth*12;
+    const up = diffMonth > 1, down = diffMonth < -1;
+    const dir = up?'up':(down?'down':'flat');
+
+    // verdict
+    const v = $('verdict'); v.dataset.dir = dir;
+    const move = up ? 'sobe' : (down ? 'cai' : 'fica igual');
+    $('verdictText').innerHTML = `Na reforma, sua carga <em>${move}</em> de ${pct(base.carga)} para ${pct(ref.carga)}`;
+    const absYear = brl.format(Math.abs(diffYear));
+    if(up) $('verdictSub').innerHTML = `Sua empresa pagaria cerca de <b>${absYear} a mais por ano</b>. O Imposto Seletivo sobre o seu produto pesa mais do que o alívio dos créditos — vale planejar preço e margem antes de 2026.`;
+    else if(down) $('verdictSub').innerHTML = `Sua empresa economizaria cerca de <b>${absYear} por ano</b>. Os créditos sobre compras compensam a nova alíquota — mas o ganho depende de aproveitar 100% dos créditos a que tem direito.`;
+    else $('verdictSub').innerHTML = `O impacto é praticamente neutro no total, mas a composição muda: menos tributo em cascata, mais peso em crédito e base. A gestão de créditos passa a definir o resultado.`;
+
+    // kpis
+    $('kpiHoje').textContent = pct(base.carga);
+    $('kpiHoje').style.color = 'var(--ink)';
+    $('kpiHojeD').textContent = `${REGIME_NOME[s.regime]} · ${brl.format(base.liq)}/mês`;
+
+    $('kpiRef').textContent = pct(ref.carga);
+    $('kpiRef').style.color = up?'var(--warn)':(down?'var(--good)':'var(--ink)');
+    $('kpiRefDot').style.background = up?'var(--warn)':(down?'var(--good)':'var(--ink-3)');
+    $('kpiRefD').textContent = `${s.temIS?'Com':'Sem'} Imposto Seletivo · ${brl.format(ref.liq)}/mês`;
+
+    $('kpiDif').textContent = (diffYear>=0?'+':'−')+brl.format(Math.abs(diffYear)).replace('R$','R$');
+    $('kpiDif').style.color = up?'var(--warn)':(down?'var(--good)':'var(--ink)');
+    $('kpiDifDot').style.background = up?'var(--warn)':(down?'var(--good)':'var(--ink-3)');
+    $('kpiDifD').textContent = up?'a mais no ano':(down?'de economia no ano':'sem mudança relevante');
+
+    // bars — cenários (dependem do regime da empresa)
+    const rows = isSimples(s.regime)
+      ? [ { key:'SIMP',  name:REGIME_NOME[s.regime], tag:'hoje (DAS)' },
+          { key:'REF',   name:'Reforma',      tag:'sem seletivo' },
+          { key:'REFIS', name:'Reforma + IS', tag:'com seletivo' } ]
+      : [ { key:'LP',    name:'Lucro Presumido', tag:'atual' },
+          { key:'LR',    name:'Lucro Real',      tag:'atual' },
+          { key:'REF',   name:'Reforma',         tag:'sem seletivo' },
+          { key:'REFIS', name:'Reforma + IS',    tag:'com seletivo' } ];
+    const maxCarga = Math.max(...rows.map(x=>r[x.key].carga), 0.001);
+    const barsEl = $('bars'); barsEl.innerHTML='';
+    rows.forEach(row=>{
+      const d = r[row.key];
+      let cls='f-alt';
+      if(row.key===baseKey) cls='f-base';
+      else if(row.key==='REF'||row.key==='REFIS'){ cls = d.carga <= base.carga ? 'f-good':'f-bad'; }
+      const w = Math.max(2, (d.carga/maxCarga)*100);
+      const el = document.createElement('div');
+      el.className='bar-row';
+      el.innerHTML = `
+        <div class="bar-name">${row.name}<span class="tag">${row.tag}</span></div>
+        <div class="bar-track" title="${row.name}: ${pct(d.carga)} — ${brl.format(d.liq)}/mês">
+          <div class="bar-fill ${cls}" style="width:${w}%"><span class="pct">${pct(d.carga)}</span></div>
+        </div>
+        <div class="bar-cash">${brl.format(d.liq)}<span style="color:var(--ink-3)">/mês</span></div>`;
+      barsEl.appendChild(el);
+    });
+
+    // factors
+    if(s.regime==='SU'){
+      $('fCredText').innerHTML = `No <b>Simples Unificado</b> você <b>não aproveita</b> o crédito das compras. Migrando para o Simples Híbrido/regular, viraria <span class="fv">${brl.format(r.cc.credit)}</span>/mês de crédito a favor.`;
+    } else {
+      $('fCredText').innerHTML = `Na reforma, o imposto pago nas suas compras vira crédito. Hoje isso é <span class="fv">${brl.format(r.credito)}</span> por mês que reduzem a conta — o principal alívio do novo modelo.`;
+    }
+    if(s.temIS){
+      $('fSelText').innerHTML = `O Seletivo adiciona <span class="fv" id="fSel">${brl.format(r.impSel)}</span> por mês e não gera crédito. É o que decide se a reforma é boa ou ruim para o seu setor.`;
+    } else {
+      $('fSelText').innerHTML = `Seu produto <b>não</b> tem Imposto Seletivo — por isso a reforma tende a aliviar a carga. Se isso mudar na regulamentação, a conta vira.`;
+    }
+
+    // notas contextuais
+    const notes=[];
+    if(s.regime==='SU'){
+      notes.push(`<div class="ctx-note warn">${REGIME_ICON_WARN}<span>No <b>Simples Unificado/MEI</b>, o IBS/CBS fica embutido no DAS, <b>sem crédito na entrada e sem redução</b>. As barras acima mostram o cenário de <b>migrar para o Simples Híbrido/regular</b> — que libera ${brl.format(r.cc.credit)}/mês de crédito.</span></div>`);
+    }
+    if(isSimples(s.regime)){
+      notes.push(`<div class="ctx-note info">${ICON_INFO}<span>O IVA (IBS/CBS) <b>não compõe</b> a base de cálculo do PGDAS.</span></div>`);
+    }
+    if(s.b2c){
+      notes.push(`<div class="ctx-note info">${ICON_INFO}<span>Você marcou <b>venda B2C</b>: o consumidor final <b>não aproveita</b> o crédito do IVA — ele vira custo no preço. Em vendas B2B, o cliente recupera esse valor.</span></div>`);
+    }
+    $('ctxNotes').innerHTML = notes.join('');
+
+    updateSupStats(r.cc);
+    renderSens(s, base.carga);
+  }
+
+  // ---- suppliers: totals + migrate copy (não reconstrói a tabela) ----
+  function updateSupStats(cc){
+    $('supTot').textContent = brl.format(cc.credit) + '/mês';
+    $('supTotD').textContent = `${brl.format(cc.credit*12)} por ano abatidos do imposto da reforma.`;
+    $('supLeak').textContent = brl.format(cc.leak) + '/mês';
+    if(cc.leak > 1){
+      $('supLeakD').innerHTML = `Comprando de fornecedores do Simples Unificado/MEI ou isentos, você deixa de aproveitar <b>${brl.format(cc.leak*12)}/ano</b> em crédito.`;
+      $('migrarMs').innerHTML = `Trocar os fornecedores do Simples Unificado/MEI por regime regular ou Simples Híbrido recuperaria até <b>${brl.format(cc.leak)}/mês</b> (${brl.format(cc.leak*12)}/ano) em crédito.`;
+    } else {
+      $('supLeakD').textContent = state.migrar ? 'Cenário com todos os fornecedores no regime regular — crédito máximo.' : 'Todos os seus fornecedores já geram crédito pleno.';
+      $('migrarMs').textContent = 'Todos os fornecedores já estão no regime regular — crédito no máximo.';
+    }
+  }
+
+  // ---- suppliers: build editable table ----
+  function renderSuppliers(){
+    const tb = $('supBody'); tb.innerHTML='';
+    state.suppliers.forEach((sp,i)=>{
+      const tr=document.createElement('tr');
+      tr.innerHTML = `
+        <td><input class="sname" type="text" value="${sp.nome.replace(/"/g,'&quot;')}" data-i="${i}" data-k="nome" aria-label="Nome do fornecedor"></td>
+        <td>
+          <select class="stipo" data-i="${i}" data-k="tipo" aria-label="Tipo">
+            <option ${sp.tipo==='Mercadoria'?'selected':''}>Mercadoria</option>
+            <option ${sp.tipo==='Serviço'?'selected':''}>Serviço</option>
+            <option ${sp.tipo==='Locação de bens'?'selected':''}>Locação de bens</option>
+            <option ${sp.tipo==='Imóveis (locação/arrend.)'?'selected':''}>Imóveis (locação/arrend.)</option>
+          </select>
+        </td>
+        <td class="r"><span class="sval"><input type="text" inputmode="numeric" value="${fmtMoney(sp.valor)}" data-i="${i}" data-k="valor" aria-label="Valor mensal"></span></td>
+        <td>
+          <select class="sreg" data-i="${i}" data-k="regime" aria-label="Regime do fornecedor">
+            <option value="Regular" ${sp.regime==='Regular'?'selected':''}>Regime regular</option>
+            <option value="Hibrido" ${sp.regime==='Hibrido'?'selected':''}>Simples Híbrido</option>
+            <option value="Unificado" ${sp.regime==='Unificado'||sp.regime==='Simples'?'selected':''}>Simples Unificado / MEI</option>
+            <option value="Isento" ${sp.regime==='Isento'?'selected':''}>Isento</option>
+          </select>
+          <div class="regchip"><i style="background:${REG_COLOR[sp.regime]||'var(--ink-3)'}"></i>${(state.migrar && sp.regime!=='Regular' && sp.regime!=='Hibrido') ? 'simulado como regular' : ((sp.regime==='Regular'||sp.regime==='Hibrido')?'crédito pleno':(sp.regime==='Isento'?'sem crédito':'crédito reduzido'))}</div>
+        </td>
+        <td class="r"><span class="sup-pct" data-pctcell="${i}">—</span></td>
+        <td class="r"><span class="sup-cred" data-credcell="${i}">—</span></td>
+        <td class="r"><button class="sup-del" data-del="${i}" aria-label="Remover" ${state.suppliers.length<=1?'style="visibility:hidden"':''}>×</button></td>`;
+      tb.appendChild(tr);
+    });
+    updateCreditCells();
+  }
+  function updateCreditCells(){
+    const cc = computeCredit(state);
+    cc.rows.forEach((row,i)=>{
+      const klass = row.ap>=0.99?'full':(row.ap<=0.001?'zero':'part');
+      const cell = document.querySelector(`[data-credcell="${i}"]`);
+      if(cell){ cell.textContent = brl.format(row.credito) + '/mês'; cell.className = 'sup-cred ' + klass; }
+      const pc = document.querySelector(`[data-pctcell="${i}"]`);
+      if(pc){ pc.textContent = Math.round(row.ap*100) + '%'; pc.className = 'sup-pct ' + klass; }
+    });
+  }
+
+  // ---- sensitivity chart ----
+  function renderSens(s, baseCarga){
+    const svg = $('sensChart');
+    const W=640,H=320, pad={l:52,r:16,t:16,b:44};
+    const x0=pad.l, x1=W-pad.r, y0=H-pad.b, y1=pad.t;
+    const ivas=[]; for(let i=18;i<=32;i+=2) ivas.push(i);
+    const dataRef=[], dataRefIS=[];
+    ivas.forEach(iv=>{
+      const c = compute({...s, iva:iv});
+      dataRef.push({x:iv, y:c.REF.carga});
+      dataRefIS.push({x:iv, y:c.REFIS.carga});
+    });
+    const allY = [...dataRef.map(d=>d.y), ...dataRefIS.map(d=>d.y), baseCarga];
+    const ymax = Math.min(0.7, Math.max(...allY)*1.15);
+    const ymin = 0;
+    const sx = v => x0 + (v-18)/(32-18)*(x1-x0);
+    const sy = v => y0 - (v-ymin)/(ymax-ymin)*(y0-y1);
+
+    let g='';
+    // grid + y labels
+    const yticks=4;
+    for(let i=0;i<=yticks;i++){
+      const val = ymin + (ymax-ymin)*i/yticks;
+      const y = sy(val);
+      g+=`<line class="grid" x1="${x0}" y1="${y}" x2="${x1}" y2="${y}"/>`;
+      g+=`<text x="${x0-9}" y="${y+4}" text-anchor="end" font-size="11">${Math.round(val*100)}%</text>`;
+    }
+    // x axis labels
+    ivas.forEach(iv=>{ g+=`<text x="${sx(iv)}" y="${y0+20}" text-anchor="middle" font-size="11">${iv}%</text>`; });
+    g+=`<text x="${(x0+x1)/2}" y="${H-6}" text-anchor="middle" font-size="11.5" fill="var(--ink-3)">Alíquota do IVA (IBS + CBS)</text>`;
+    // baseline
+    const by=sy(baseCarga);
+    g+=`<line class="baseline" x1="${x0}" y1="${by}" x2="${x1}" y2="${by}"/>`;
+    g+=`<text x="${x1-4}" y="${by-7}" text-anchor="end" font-size="10.5" fill="var(--ink-3)">carga hoje ${pct(baseCarga)}</text>`;
+
+    const line = (data,color)=>{
+      const p = data.map((d,i)=>(i?'L':'M')+sx(d.x).toFixed(1)+' '+sy(d.y).toFixed(1)).join(' ');
+      let str=`<path d="${p}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linejoin="round"/>`;
+      data.forEach(d=>{ str+=`<circle cx="${sx(d.x).toFixed(1)}" cy="${sy(d.y).toFixed(1)}" r="3" fill="${color}" stroke="var(--surface)" stroke-width="1.5"/>`; });
+      return str;
+    };
+    g+=line(dataRef,'var(--good)');
+    g+=line(dataRefIS,'var(--warn)');
+    // current iva marker
+    const cx=sx(s.iva);
+    g+=`<line x1="${cx}" y1="${y1}" x2="${cx}" y2="${y0}" stroke="var(--accent)" stroke-width="1" stroke-dasharray="3 3" opacity=".7"/>`;
+    g+=`<text x="${cx}" y="${y1+2}" text-anchor="middle" font-size="10.5" fill="var(--accent)" font-weight="600">IVA ${s.iva}%</text>`;
+    // legend
+    g+=`<g transform="translate(${x0+4},${y1+2})">
+      <rect x="0" y="0" width="11" height="3" rx="1.5" fill="var(--good)"/><text x="16" y="6" font-size="11">Reforma sem Seletivo</text>
+      <rect x="150" y="0" width="11" height="3" rx="1.5" fill="var(--warn)"/><text x="166" y="6" font-size="11">Reforma + Seletivo</text>
+    </g>`;
+    svg.innerHTML=g;
+  }
+
+  // ---- wire up ----
+  function syncInputs(){
+    $('fat').value = fmtMoney(state.fat);
+    $('iva').value=state.iva; $('ivaV').textContent=state.iva+'%';
+    $('sel').value=state.sel; $('selV').textContent=state.sel+'%';
+    $('simplesAprov').value=state.simplesAprov; $('simplesAprovV').textContent=state.simplesAprov+'%';
+    $('ipi').value=state.ipi; $('ipiV').textContent=state.ipi+'%';
+    $('icms').value=state.icms; $('icmsV').textContent=state.icms+'%';
+    $('temIS').checked=state.temIS; $('isBase').checked=state.isBase; $('b2c').checked=state.b2c;
+    $('migrar').checked=state.migrar;
+    $('regimeSel').value=state.regime;
+    $('simplesRate').value=state.simplesRate; $('simplesRateV').textContent=state.simplesRate+'%';
+    $('simplesRateField').hidden = !isSimples(state.regime);
+    renderSuppliers();
+  }
+  function markTouched(){ $('exBadge').style.display='none'; }
+
+  $('fat').addEventListener('input', e=>{ state.fat=parseMoney(e.target.value); e.target.value=fmtMoney(state.fat); markTouched(); render(); });
+  ['iva','sel','simplesAprov','ipi','icms'].forEach(id=>{
+    $(id).addEventListener('input', e=>{ state[id]=parseFloat(e.target.value); $(id+'V').textContent=(id==='iva'? state[id] : Math.round(state[id]))+'%'; if(id==='iva')$('ivaV').textContent=state.iva+'%'; markTouched(); updateCreditCells(); render(); });
+  });
+  $('simplesRate').addEventListener('input', e=>{ state.simplesRate=parseFloat(e.target.value); $('simplesRateV').textContent=state.simplesRate.toLocaleString('pt-BR')+'%'; markTouched(); render(); });
+  $('temIS').addEventListener('change', e=>{ state.temIS=e.target.checked; markTouched(); render(); });
+  $('isBase').addEventListener('change', e=>{ state.isBase=e.target.checked; markTouched(); render(); });
+  $('b2c').addEventListener('change', e=>{ state.b2c=e.target.checked; markTouched(); render(); });
+  $('regimeSel').addEventListener('change', e=>{ state.regime=e.target.value; $('simplesRateField').hidden=!isSimples(state.regime); markTouched(); render(); });
+  $('resetBtn').addEventListener('click',()=>{ state={...DEFAULTS, suppliers:cloneSup(SUPPLIERS_DEFAULT)}; syncInputs(); $('exBadge').style.display=''; render(); });
+
+  // suppliers interactions (event delegation)
+  $('supBody').addEventListener('input', e=>{
+    const el=e.target; const i=+el.dataset.i, k=el.dataset.k; if(k===undefined||isNaN(i)) return;
+    if(k==='valor'){ state.suppliers[i].valor=parseMoney(el.value); el.value=fmtMoney(state.suppliers[i].valor); }
+    else state.suppliers[i][k]=el.value;
+    markTouched(); updateCreditCells(); render();
+  });
+  $('supBody').addEventListener('change', e=>{
+    const el=e.target; const i=+el.dataset.i, k=el.dataset.k;
+    if((k==='regime'||k==='tipo') && !isNaN(i)){ state.suppliers[i][k]=el.value; markTouched(); renderSuppliers(); render(); }
+  });
+  $('supBody').addEventListener('click', e=>{
+    const del=e.target.closest('[data-del]'); if(!del) return;
+    const i=+del.dataset.del; if(state.suppliers.length<=1) return;
+    state.suppliers.splice(i,1); markTouched(); renderSuppliers(); render();
+  });
+  $('supAdd').addEventListener('click', ()=>{ state.suppliers.push({nome:'Novo fornecedor', tipo:'Mercadoria', valor:0, regime:'Regular'}); markTouched(); renderSuppliers(); render(); });
+  $('migrar').addEventListener('change', e=>{ state.migrar=e.target.checked; renderSuppliers(); render(); });
+
+  // ---- import planilha ----
+  function norm(s){ return String(s==null?'':s).normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().trim(); }
+  function matchRegime(v){ const n=norm(v); if(n.includes('hibrid')) return 'Hibrido'; if(n.includes('unificad')||n.includes('mei')) return 'Unificado'; if(n.includes('simples')) return 'Unificado'; if(n.includes('isent')||n.includes('sem cred')||n.includes('uso e consumo')) return 'Isento'; if(n.includes('regular')||n.includes('normal')||n.includes('lucro')) return 'Regular'; return 'Regular'; }
+  function matchTipo(v){ const n=norm(v); if(n.includes('imov')||n.includes('aluguel')||n.includes('arrend')) return 'Imóveis (locação/arrend.)'; if(n.includes('loca')) return 'Locação de bens'; if(n.startsWith('serv')) return 'Serviço'; return 'Mercadoria'; }
+  function toNum(v){ if(typeof v==='number') return Math.round(v); const n=parseInt(String(v).replace(/[^\d]/g,''),10); return isNaN(n)?0:n; }
+  function note(msg,ok){ const n=$('importNote'); n.textContent=msg; n.className='import-note '+(ok?'ok':'err'); clearTimeout(note._t); note._t=setTimeout(()=>{n.textContent='';n.className='import-note';},7000); }
+
+  function rowsToSuppliers(rows){
+    if(!rows||!rows.length) throw new Error('vazio');
+    const header = rows[0].map(norm);
+    const used = new Set();
+    const findCol = (...keys)=>{ for(const k of keys){ const idx=header.findIndex((h,j)=>!used.has(j)&&h.includes(k)); if(idx>=0){ used.add(idx); return idx; } } return -1; };
+    // ordem importa: 'fornecedor' consome a coluna de nome antes de 'fornece' procurar o tipo
+    const ci={ nome:findCol('fornecedor','prestador','nome','razao','descri'), valor:findCol('valor','mensal','compra','total'), tipo:findCol('fornece','tipo','mercad','servic','produto'), regime:findCol('regime','tribut') };
+    const positional = ci.nome<0 && ci.valor<0;
+    const start = positional?0:1;
+    const out=[];
+    for(let i=start;i<rows.length;i++){
+      const r=rows[i]; if(!r||r.every(c=>String(c==null?'':c).trim()==='')) continue;
+      const nome=String((positional?r[0]:r[ci.nome])??'').trim()||'Fornecedor';
+      const tipo=matchTipo(positional?r[1]:(ci.tipo>=0?r[ci.tipo]:''));
+      const valor=toNum(positional?r[2]:(ci.valor>=0?r[ci.valor]:0));
+      const regime=matchRegime(positional?r[3]:(ci.regime>=0?r[ci.regime]:''));
+      if(valor<=0 && nome==='Fornecedor') continue;
+      out.push({nome,tipo,valor,regime});
+    }
+    if(!out.length) throw new Error('sem linhas');
+    return out;
+  }
+  function parseCSV(text){
+    text=text.replace(/^﻿/,'');
+    const first=(text.split(/\r?\n/)[0]||'');
+    const delim=(first.split(';').length>first.split(',').length)?';':',';
+    const rows=[]; let row=[],field='',q=false;
+    for(let i=0;i<text.length;i++){ const c=text[i];
+      if(q){ if(c==='"'){ if(text[i+1]==='"'){field+='"';i++;} else q=false; } else field+=c; }
+      else { if(c==='"')q=true; else if(c===delim){row.push(field);field='';} else if(c==='\n'){row.push(field);rows.push(row);row=[];field='';} else if(c!=='\r')field+=c; } }
+    if(field.length||row.length){ row.push(field); rows.push(row); }
+    return rows;
+  }
+  function applyImport(rows,fname){
+    try{ const sup=rowsToSuppliers(rows); state.suppliers=sup; markTouched(); renderSuppliers(); render(); note(`✓ ${sup.length} fornecedores importados de “${fname}”.`,true); }
+    catch(err){ note('Não consegui ler a planilha — confira as colunas no modelo.',false); }
+  }
+  $('importBtn').addEventListener('click', ()=> $('fileInput').click());
+  $('fileInput').addEventListener('change', e=>{
+    const file=e.target.files[0]; if(!file) return;
+    const ext=(file.name.split('.').pop()||'').toLowerCase();
+    if(ext==='csv'){ const rd=new FileReader(); rd.onload=()=>applyImport(parseCSV(rd.result),file.name); rd.onerror=()=>note('Erro ao ler o arquivo.',false); rd.readAsText(file,'utf-8'); }
+    else if(ext==='xlsx'||ext==='xls'){
+      if(!window.XLSX){ note('Leitor de .xlsx indisponível — exporte como CSV e importe.',false); e.target.value=''; return; }
+      const rd=new FileReader(); rd.onload=()=>{ try{ const wb=XLSX.read(new Uint8Array(rd.result),{type:'array'}); const ws=wb.Sheets[wb.SheetNames[0]]; const rows=XLSX.utils.sheet_to_json(ws,{header:1,blankrows:false}); applyImport(rows,file.name); }catch(err){ note('Não consegui ler o .xlsx.',false); } }; rd.onerror=()=>note('Erro ao ler o arquivo.',false); rd.readAsArrayBuffer(file);
+    } else { note('Formato não suportado. Use .csv ou .xlsx.',false); }
+    e.target.value='';
+  });
+
+  // ---- modelo / modal ----
+  function modelCSV(){
+    const rows=[['Fornecedor','Fornece','Valor mensal','Regime'],
+      ['Distribuidora de matéria-prima','Mercadoria','18000','Regular'],
+      ['Frete e logística','Serviço','6000','Regular'],
+      ['Embalagens','Mercadoria','9000','Simples'],
+      ['Serviços terceirizados','Serviço','4000','Simples'],
+      ['Materiais de uso e consumo','Mercadoria','3000','Isento']];
+    return '﻿'+rows.map(r=>r.join(';')).join('\r\n');
+  }
+  const modal=$('modelModal');
+  const closeModal=()=>{ modal.hidden=true; };
+  $('modelBtn').addEventListener('click', ()=>{ modal.hidden=false; });
+  $('modelClose').addEventListener('click', closeModal);
+  modal.addEventListener('click', e=>{ if(e.target===modal) closeModal(); });
+  document.addEventListener('keydown', e=>{ if(e.key==='Escape' && !modal.hidden) closeModal(); });
+  function modelXlsxBlob(){
+    if(!window.XLSX) return null;
+    const aoa=[['Fornecedor','Fornece','Valor mensal','Regime'],
+      ['Distribuidora de matéria-prima','Mercadoria',18000,'Regular'],
+      ['Frete e logística','Serviço',6000,'Regular'],
+      ['Embalagens','Mercadoria',9000,'Simples'],
+      ['Serviços terceirizados','Serviço',4000,'Simples'],
+      ['Materiais de uso e consumo','Mercadoria',3000,'Isento']];
+    const ws=XLSX.utils.aoa_to_sheet(aoa); ws['!cols']=[{wch:32},{wch:14},{wch:14},{wch:12}];
+    const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,'Fornecedores');
+    return new Blob([XLSX.write(wb,{bookType:'xlsx',type:'array'})],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+  }
+  // Usa a capability downloads (claude.ai). Fallback: link direto (funciona quando auto-hospedado).
+  async function offerDownload(filename, data, mime){
+    const err=$('dlErr'); err.hidden=true;
+    try{
+      const c=window.claude;
+      if(c && typeof c.use==='function'){
+        const downloads=await c.use('downloads');
+        if(downloads){ await downloads.save({filename, data}); return; }
+      }
+      const blob=(data instanceof Blob)?data:new Blob([data],{type:mime||'application/octet-stream'});
+      const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=filename;
+      document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),1500);
+    }catch(ex){ if(ex&&ex.code==='declined') return; err.textContent='Não foi possível baixar aqui ('+((ex&&ex.code)||'erro')+'). Use “Copiar” e cole numa planilha.'; err.hidden=false; }
+  }
+  $('dlXlsx').addEventListener('click', ()=>{ const b=modelXlsxBlob(); if(b) offerDownload('modelo-fornecedores.xlsx', b); else offerDownload('modelo-fornecedores.csv', modelCSV(), 'text/csv;charset=utf-8'); });
+  $('dlModel').addEventListener('click', ()=> offerDownload('modelo-fornecedores.csv', modelCSV(), 'text/csv;charset=utf-8'));
+  $('copyModel').addEventListener('click', async ()=>{
+    const csv=modelCSV();
+    try{ await navigator.clipboard.writeText(csv); }
+    catch(_){ const ta=document.createElement('textarea'); ta.value=csv; ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta); ta.select(); try{document.execCommand('copy');}catch(e){} ta.remove(); }
+    const l=$('copyLabel'); const old=l.textContent; l.textContent='Copiado ✓'; setTimeout(()=>l.textContent=old,1800);
+  });
+  $('ctaBtn').addEventListener('click', e=>{ e.preventDefault(); const el=e.target; const old=el.innerHTML; el.textContent='✓ Em breve: agenda de diagnóstico'; setTimeout(()=>el.innerHTML=old,2200); });
+
+  // theme toggle
+  const tRoot=document.documentElement;
+  function applyThemeLabel(){ const dark = tRoot.getAttribute('data-theme')==='dark' || (!tRoot.getAttribute('data-theme') && matchMedia('(prefers-color-scheme:dark)').matches); $('themeLabel').textContent = dark?'Claro':'Escuro'; }
+  $('themeBtn').addEventListener('click',()=>{ const cur=tRoot.getAttribute('data-theme'); const dark = cur==='dark' || (!cur && matchMedia('(prefers-color-scheme:dark)').matches); tRoot.setAttribute('data-theme', dark?'light':'dark'); applyThemeLabel(); render(); });
+  matchMedia('(prefers-color-scheme:dark)').addEventListener('change', applyThemeLabel);
+
+  syncInputs(); applyThemeLabel(); render();
+})();
+</script>
