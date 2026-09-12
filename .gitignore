@@ -17,3 +17,6 @@ output/*.xlsx
 # Sistema
 .DS_Store
 Thumbs.db
+
+# Testes/cache
+.pytest_cache/

@@ -1,0 +1,6 @@
+# Backend da Bússola Tributária (API + motor de cálculo)
+fastapi
+uvicorn[standard]
+httpx            # consulta de CNPJ (BrasilAPI)
+pydantic>=2
+pytest           # testes do motor
