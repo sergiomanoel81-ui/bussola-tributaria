@@ -41,6 +41,7 @@
   }
 
   *{box-sizing:border-box}
+  [hidden]{display:none!important}
   body{
     background:var(--paper); color:var(--ink);
     font-family:"IBM Plex Sans",system-ui,-apple-system,sans-serif;
@@ -145,6 +146,13 @@
   .verdict[data-dir="down"] h2 em{color:var(--good)}
   .verdict .sub{color:var(--ink-2); font-size:.94rem; max-width:56ch}
   .verdict .sub b{color:var(--ink)}
+  .ctx-notes{display:flex; flex-direction:column; gap:8px; margin-top:16px}
+  .ctx-notes:empty{display:none}
+  .ctx-note{display:flex; gap:9px; align-items:flex-start; font-size:.83rem; line-height:1.45; color:var(--ink-2); padding:10px 12px; border-radius:10px; border:1px solid var(--line)}
+  .ctx-note.warn{background:var(--warn-soft); border-color:color-mix(in srgb,var(--warn) 30%,transparent)}
+  .ctx-note.info{background:var(--surface-2)}
+  .ctx-note b{color:var(--ink)}
+  .ctx-note svg{flex:none; margin-top:1px}
 
   .kpis{display:grid; grid-template-columns:repeat(3,1fr); gap:14px}
   @media (max-width:560px){ .kpis{grid-template-columns:1fr} }
@@ -325,11 +333,19 @@
       </div>
 
       <div class="field">
-        <label>Regime atual</label>
-        <div class="seg" id="regimeSeg" role="group" aria-label="Regime atual">
-          <button data-reg="LP" aria-pressed="true">Lucro Presumido</button>
-          <button data-reg="LR" aria-pressed="false">Lucro Real</button>
-        </div>
+        <label for="regimeSel">Regime atual</label>
+        <select id="regimeSel">
+          <option value="LP">Lucro Presumido</option>
+          <option value="LR">Lucro Real</option>
+          <option value="SH">Simples Híbrido</option>
+          <option value="SU">Simples Unificado / MEI</option>
+        </select>
+      </div>
+
+      <div class="field" id="simplesRateField" hidden>
+        <label for="simplesRate" style="display:flex; justify-content:space-between; align-items:baseline">Alíquota do Simples hoje (DAS) <span class="num" id="simplesRateV" style="color:var(--ink); font-weight:600">10%</span></label>
+        <input type="range" id="simplesRate" min="4" max="33" step="0.5" value="10">
+        <span class="hint">% do faturamento que você paga hoje no DAS</span>
       </div>
 
       <div class="field">
@@ -338,6 +354,16 @@
           <span>
             <span class="ct">Meu produto tem Imposto Seletivo</span><br>
             <span class="cs">Bebidas alcoólicas, cigarros, açucarados, etc. (o “imposto do pecado”)</span>
+          </span>
+        </label>
+      </div>
+
+      <div class="field">
+        <label class="check">
+          <input type="checkbox" id="b2c">
+          <span>
+            <span class="ct">Vendo para consumidor final (B2C)</span><br>
+            <span class="cs">Em B2C o cliente não aproveita o crédito do IVA — ele vira custo no preço.</span>
           </span>
         </label>
       </div>
@@ -366,6 +392,7 @@
         <div class="vk">Veredito da simulação</div>
         <h2 id="verdictText">—</h2>
         <p class="sub" id="verdictSub">—</p>
+        <div class="ctx-notes" id="ctxNotes"></div>
       </section>
 
       <section class="kpis">
@@ -461,7 +488,7 @@
       <div class="factors">
         <div class="factor">
           <div class="fh"><span class="fi" style="background:var(--good-soft)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--good)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span><b>Créditos que você recupera</b></div>
-          <p>Na reforma, o imposto pago nas suas compras vira crédito. Hoje isso é <span class="fv" id="fCred">—</span> por mês que reduzem a conta — o principal alívio do novo modelo.</p>
+          <p id="fCredText">Na reforma, o imposto pago nas suas compras vira crédito. Hoje isso é <span class="fv" id="fCred">—</span> por mês que reduzem a conta — o principal alívio do novo modelo.</p>
         </div>
         <div class="factor">
           <div class="fh"><span class="fi" style="background:var(--warn-soft)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--warn)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.2 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.2a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg></span><b>Peso do Imposto Seletivo</b></div>
@@ -504,7 +531,9 @@
   const brl2 = new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL',minimumFractionDigits:0,maximumFractionDigits:0});
   const pct = n => (n*100).toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1})+'%';
 
-  const DEFAULTS = { fat:100000, regime:'LP', temIS:true, iva:28, sel:20, ipi:15, icms:18, isBase:true, migrar:false, simplesAprov:0 };
+  const DEFAULTS = { fat:100000, regime:'LP', temIS:true, iva:28, sel:20, ipi:15, icms:18, isBase:true, migrar:false, simplesAprov:0, simplesRate:10, b2c:false };
+  const REGIME_NOME = { LP:'Lucro Presumido', LR:'Lucro Real', SH:'Simples Híbrido', SU:'Simples Unificado' };
+  const isSimples = r => r==='SH' || r==='SU';
   const PIS_LP = 0.0365, PIS_LR = 0.0925;
 
   // Fração do IVA da compra que se converte em crédito para o comprador, por regime do fornecedor.
@@ -546,11 +575,14 @@
   function compute(s){
     const fat = s.fat, ipi=s.ipi/100, icms=s.icms/100, iva=s.iva/100, sel=s.sel/100;
     const cc = computeCredit(s);
+    // Os cenários de reforma representam o regime regular / Simples Híbrido (que aproveita crédito).
+    // O Simples Unificado é tratado por nota: hoje não aproveita crédito; migrar para o Híbrido o libera.
     const credito = cc.credit;
     // regimes atuais
     const lp = { imp: fat*ipi + fat*icms + fat*PIS_LP };
     const lr = { imp: fat*ipi + fat*icms + fat*PIS_LR };
     lp.liq = lp.imp; lr.liq = lr.imp;
+    const simpImp = fat * ((s.simplesRate||0)/100);   // DAS hoje (Simples)
     // reforma sem IS
     const rIVA = fat*iva;
     const rSemIS = { bruto:rIVA, cred:credito, liq: Math.max(0, rIVA - credito) };
@@ -563,19 +595,21 @@
     const each = v => ({ liq:v, carga: fat>0 ? v/fat : 0 });
     return {
       fat, credito, impSel, cc,
-      LP: each(lp.liq), LR: each(lr.liq),
+      LP: each(lp.liq), LR: each(lr.liq), SIMP: each(simpImp),
       REF: {...each(rSemIS.liq), cred:credito},
       REFIS: {...each(rComIS.liq), cred:credito, sel:impSel},
       nota:{ LP: fat+fat*ipi, REF: fat+rIVA, REFIS: fat+rIVA2 }
     };
   }
 
+  const REGIME_ICON_WARN = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--warn)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.2 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.2a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg>';
+  const ICON_INFO = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--ink-3)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.5h.01"/></svg>';
+
   // ---- render ----
   function render(){
     const s = state, r = compute(s);
-    const baseKey = s.regime;                    // LP or LR
+    const baseKey = isSimples(s.regime) ? 'SIMP' : s.regime;   // LP, LR ou SIMP (DAS)
     const base = r[baseKey];
-    const altKey = s.regime==='LP' ? 'LR':'LP';
     const refKey = s.temIS ? 'REFIS' : 'REF';
     const ref = r[refKey];
 
@@ -596,7 +630,7 @@
     // kpis
     $('kpiHoje').textContent = pct(base.carga);
     $('kpiHoje').style.color = 'var(--ink)';
-    $('kpiHojeD').textContent = `${baseKey==='LP'?'Lucro Presumido':'Lucro Real'} · ${brl.format(base.liq)}/mês`;
+    $('kpiHojeD').textContent = `${REGIME_NOME[s.regime]} · ${brl.format(base.liq)}/mês`;
 
     $('kpiRef').textContent = pct(ref.carga);
     $('kpiRef').style.color = up?'var(--warn)':(down?'var(--good)':'var(--ink)');
@@ -608,13 +642,15 @@
     $('kpiDifDot').style.background = up?'var(--warn)':(down?'var(--good)':'var(--ink-3)');
     $('kpiDifD').textContent = up?'a mais no ano':(down?'de economia no ano':'sem mudança relevante');
 
-    // bars — 4 scenarios
-    const rows = [
-      { key:'LP',    name:'Lucro Presumido', tag:'atual' },
-      { key:'LR',    name:'Lucro Real',      tag:'atual' },
-      { key:'REF',   name:'Reforma',         tag:'sem seletivo' },
-      { key:'REFIS', name:'Reforma + IS',    tag:'com seletivo' },
-    ];
+    // bars — cenários (dependem do regime da empresa)
+    const rows = isSimples(s.regime)
+      ? [ { key:'SIMP',  name:REGIME_NOME[s.regime], tag:'hoje (DAS)' },
+          { key:'REF',   name:'Reforma',      tag:'sem seletivo' },
+          { key:'REFIS', name:'Reforma + IS', tag:'com seletivo' } ]
+      : [ { key:'LP',    name:'Lucro Presumido', tag:'atual' },
+          { key:'LR',    name:'Lucro Real',      tag:'atual' },
+          { key:'REF',   name:'Reforma',         tag:'sem seletivo' },
+          { key:'REFIS', name:'Reforma + IS',    tag:'com seletivo' } ];
     const maxCarga = Math.max(...rows.map(x=>r[x.key].carga), 0.001);
     const barsEl = $('bars'); barsEl.innerHTML='';
     rows.forEach(row=>{
@@ -635,12 +671,28 @@
     });
 
     // factors
-    $('fCred').textContent = brl.format(r.credito);
+    if(s.regime==='SU'){
+      $('fCredText').innerHTML = `No <b>Simples Unificado</b> você <b>não aproveita</b> o crédito das compras. Migrando para o Simples Híbrido/regular, viraria <span class="fv">${brl.format(r.cc.credit)}</span>/mês de crédito a favor.`;
+    } else {
+      $('fCredText').innerHTML = `Na reforma, o imposto pago nas suas compras vira crédito. Hoje isso é <span class="fv">${brl.format(r.credito)}</span> por mês que reduzem a conta — o principal alívio do novo modelo.`;
+    }
     if(s.temIS){
       $('fSelText').innerHTML = `O Seletivo adiciona <span class="fv" id="fSel">${brl.format(r.impSel)}</span> por mês e não gera crédito. É o que decide se a reforma é boa ou ruim para o seu setor.`;
     } else {
       $('fSelText').innerHTML = `Seu produto <b>não</b> tem Imposto Seletivo — por isso a reforma tende a aliviar a carga. Se isso mudar na regulamentação, a conta vira.`;
     }
+
+    const notes=[];
+    if(s.regime==='SU'){
+      notes.push(`<div class="ctx-note warn">${REGIME_ICON_WARN}<span>No <b>Simples Unificado/MEI</b>, o IBS/CBS fica embutido no DAS, <b>sem crédito na entrada e sem redução</b>. As barras acima mostram o cenário de <b>migrar para o Simples Híbrido/regular</b> — que libera ${brl.format(r.cc.credit)}/mês de crédito.</span></div>`);
+    }
+    if(isSimples(s.regime)){
+      notes.push(`<div class="ctx-note info">${ICON_INFO}<span>O IVA (IBS/CBS) <b>não compõe</b> a base de cálculo do PGDAS.</span></div>`);
+    }
+    if(s.b2c){
+      notes.push(`<div class="ctx-note info">${ICON_INFO}<span>Você marcou <b>venda B2C</b>: o consumidor final <b>não aproveita</b> o crédito do IVA — ele vira custo no preço. Em vendas B2B, o cliente recupera esse valor.</span></div>`);
+    }
+    $('ctxNotes').innerHTML = notes.join('');
 
     updateSupStats(r.cc);
     renderSens(s, base.carga);
@@ -745,7 +797,7 @@
       return str;
     };
     g+=line(dataRef,'var(--good)');
-    g+=line(dataRefIS,'var(--bad)');
+    g+=line(dataRefIS,'var(--warn)');
     // current iva marker
     const cx=sx(s.iva);
     g+=`<line x1="${cx}" y1="${y1}" x2="${cx}" y2="${y0}" stroke="var(--accent)" stroke-width="1" stroke-dasharray="3 3" opacity=".7"/>`;
@@ -753,7 +805,7 @@
     // legend
     g+=`<g transform="translate(${x0+4},${y1+2})">
       <rect x="0" y="0" width="11" height="3" rx="1.5" fill="var(--good)"/><text x="16" y="6" font-size="11">Reforma sem Seletivo</text>
-      <rect x="150" y="0" width="11" height="3" rx="1.5" fill="var(--bad)"/><text x="166" y="6" font-size="11">Reforma + Seletivo</text>
+      <rect x="150" y="0" width="11" height="3" rx="1.5" fill="var(--warn)"/><text x="166" y="6" font-size="11">Reforma + Seletivo</text>
     </g>`;
     svg.innerHTML=g;
   }
@@ -766,9 +818,11 @@
     $('simplesAprov').value=state.simplesAprov; $('simplesAprovV').textContent=state.simplesAprov+'%';
     $('ipi').value=state.ipi; $('ipiV').textContent=state.ipi+'%';
     $('icms').value=state.icms; $('icmsV').textContent=state.icms+'%';
-    $('temIS').checked=state.temIS; $('isBase').checked=state.isBase;
+    $('temIS').checked=state.temIS; $('isBase').checked=state.isBase; $('b2c').checked=state.b2c;
     $('migrar').checked=state.migrar;
-    document.querySelectorAll('#regimeSeg button').forEach(b=>b.setAttribute('aria-pressed', String(b.dataset.reg===state.regime)));
+    $('regimeSel').value=state.regime;
+    $('simplesRate').value=state.simplesRate; $('simplesRateV').textContent=state.simplesRate+'%';
+    $('simplesRateField').hidden = !isSimples(state.regime);
     renderSuppliers();
   }
   function markTouched(){ $('exBadge').style.display='none'; }
@@ -777,9 +831,11 @@
   ['iva','sel','simplesAprov','ipi','icms'].forEach(id=>{
     $(id).addEventListener('input', e=>{ state[id]=parseFloat(e.target.value); $(id+'V').textContent=(id==='iva'? state[id] : Math.round(state[id]))+'%'; if(id==='iva')$('ivaV').textContent=state.iva+'%'; markTouched(); updateCreditCells(); render(); });
   });
+  $('simplesRate').addEventListener('input', e=>{ state.simplesRate=parseFloat(e.target.value); $('simplesRateV').textContent=state.simplesRate.toLocaleString('pt-BR')+'%'; markTouched(); render(); });
   $('temIS').addEventListener('change', e=>{ state.temIS=e.target.checked; markTouched(); render(); });
   $('isBase').addEventListener('change', e=>{ state.isBase=e.target.checked; markTouched(); render(); });
-  document.querySelectorAll('#regimeSeg button').forEach(b=>b.addEventListener('click',()=>{ state.regime=b.dataset.reg; document.querySelectorAll('#regimeSeg button').forEach(x=>x.setAttribute('aria-pressed',String(x===b))); markTouched(); render(); }));
+  $('b2c').addEventListener('change', e=>{ state.b2c=e.target.checked; markTouched(); render(); });
+  $('regimeSel').addEventListener('change', e=>{ state.regime=e.target.value; $('simplesRateField').hidden=!isSimples(state.regime); markTouched(); render(); });
   $('resetBtn').addEventListener('click',()=>{ state={...DEFAULTS, suppliers:cloneSup(SUPPLIERS_DEFAULT)}; syncInputs(); $('exBadge').style.display=''; render(); });
 
   // suppliers interactions (event delegation)
