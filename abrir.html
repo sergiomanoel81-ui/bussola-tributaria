@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bússola Tributária — Menu local</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{ --paper:#F7F5F0; --surface:#FFFFFF; --ink:#18211E; --ink-2:#4B5751; --ink-3:#7E877F; --line:#E4DFD4; --line-2:#D5CFC1; --accent:#0B5D54; --accent-soft:#0B5D5412; --warn:#B67B12; --warn-soft:#B67B1216; --shadow:0 1px 2px rgba(24,33,30,.05),0 10px 34px rgba(24,33,30,.08); }
+  @media (prefers-color-scheme:dark){:root{ --paper:#121816; --surface:#1A2220; --ink:#ECEAE2; --ink-2:#AEB6B0; --ink-3:#7C857F; --line:#2A3532; --line-2:#374440; --accent:#3FB8A8; --accent-soft:#3FB8A81c; --warn:#D9A648; --warn-soft:#d9a6481f; --shadow:0 1px 2px rgba(0,0,0,.3),0 12px 36px rgba(0,0,0,.5); }}
+  *{box-sizing:border-box}
+  body{margin:0; min-height:100vh; background:var(--paper); color:var(--ink); font-family:"IBM Plex Sans",system-ui,sans-serif; -webkit-font-smoothing:antialiased; display:flex; align-items:center; justify-content:center; padding:40px 20px}
+  .wrap{max-width:760px; width:100%}
+  h1,h2{font-family:"Archivo",sans-serif; letter-spacing:-.02em; margin:0}
+  .brand{display:flex; align-items:center; gap:13px; margin-bottom:8px}
+  .mark{width:42px; height:42px; border-radius:12px; background:var(--accent); display:grid; place-items:center; flex:none}
+  .brand b{font-size:1.2rem; display:block; line-height:1.1}
+  .brand span{font-size:.78rem; color:var(--ink-3)}
+  .lead{color:var(--ink-2); margin:14px 0 26px; font-size:.95rem}
+  .grid{display:grid; grid-template-columns:1fr 1fr; gap:16px}
+  @media (max-width:620px){.grid{grid-template-columns:1fr}}
+  a.card{display:block; text-decoration:none; color:inherit; background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:22px 24px; box-shadow:var(--shadow); transition:transform .15s, border-color .15s}
+  a.card:hover{transform:translateY(-2px); border-color:var(--accent)}
+  a.card .tag{font-size:.66rem; font-weight:700; letter-spacing:.07em; text-transform:uppercase; color:var(--accent); background:var(--accent-soft); border:1px solid color-mix(in srgb,var(--accent) 26%,transparent); padding:3px 9px; border-radius:99px}
+  a.card.demo .tag{color:var(--warn); background:var(--warn-soft); border-color:color-mix(in srgb,var(--warn) 30%,transparent)}
+  a.card h2{font-size:1.15rem; margin:12px 0 5px}
+  a.card p{margin:0; font-size:.86rem; color:var(--ink-2)}
+  a.card .go{margin-top:12px; font-size:.85rem; font-weight:600; color:var(--accent)}
+  footer{margin-top:24px; font-size:.78rem; color:var(--ink-3); line-height:1.6}
+  code{font-family:ui-monospace,monospace; background:var(--surface); border:1px solid var(--line); padding:1px 6px; border-radius:5px; font-size:.85em}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="brand">
+      <div class="mark"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polygon points="16.2 7.8 13.4 13.4 7.8 16.2 10.6 10.6" fill="#fff" stroke="none"/></svg></div>
+      <div><b>Bússola Tributária</b><span>Menu de teste local</span></div>
+    </div>
+    <p class="lead">Tudo rodando na sua máquina. Clique para abrir cada parte — o CNPJ, o PDF e o formulário funcionam por aqui (localhost).</p>
+    <div class="grid">
+      <a class="card" href="produto-completo/simulador.html">
+        <span class="tag">Produto completo</span>
+        <h2>Simulador completo</h2>
+        <p>Fornecedores ilimitados, busca por CNPJ, importar planilha, PDF e regimes.</p>
+        <div class="go">Abrir →</div>
+      </a>
+      <a class="card demo" href="produto-apresentacao/simulador.html">
+        <span class="tag">Demonstração</span>
+        <h2>Simulador demo</h2>
+        <p>Versão limitada de prospecção (até 3 fornecedores, com captura de lead).</p>
+        <div class="go">Abrir →</div>
+      </a>
+      <a class="card" href="comercial/proposta.html">
+        <span class="tag">Comercial</span>
+        <h2>Proposta</h2>
+        <p>Proposta de consultoria pronta para enviar (salva em PDF).</p>
+        <div class="go">Abrir →</div>
+      </a>
+      <a class="card" href="comercial/slides.html">
+        <span class="tag">Comercial</span>
+        <h2>Pitch deck</h2>
+        <p>Apresentação de vendas em 7 slides (setas ←/→ para navegar).</p>
+        <div class="go">Abrir →</div>
+      </a>
+    </div>
+    <footer>
+      Para o <b>software robusto</b> (API), abra o PowerShell e rode: <code>cd backend</code> depois <code>uvicorn app.main:app --reload</code> — docs em <code>http://127.0.0.1:8000/docs</code>.
+    </footer>
+  </div>
+</body>
+</html>
