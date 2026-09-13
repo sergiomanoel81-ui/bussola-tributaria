@@ -1,0 +1,12 @@
+# Sobe a Bússola Tributária (API + site) num container só.
+#   docker compose up -d      -> inicia em segundo plano
+#   abra  http://localhost:8000
+#   docker compose down       -> para e remove
+services:
+  bussola:
+    build: .
+    image: bussola-tributaria:latest
+    container_name: bussola-tributaria
+    ports:
+      - "8000:8000"
+    restart: unless-stopped

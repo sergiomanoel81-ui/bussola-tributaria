@@ -1,0 +1,18 @@
+# Mantém o contexto de build enxuto (só backend/ e frontend/ vão pra imagem)
+.git
+.venv
+venv
+__pycache__
+*.pyc
+.pytest_cache
+node_modules
+docs
+notebooks
+output
+data
+src
+produto-completo
+produto-apresentacao
+comercial
+abrir.html
+*.md

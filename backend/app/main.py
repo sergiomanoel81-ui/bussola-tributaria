@@ -90,3 +90,17 @@ def modelo_csv() -> PlainTextResponse:
         media_type="text/csv; charset=utf-8",
         headers={"Content-Disposition": 'attachment; filename="modelo-fornecedores.csv"'},
     )
+
+
+# --- Front-end estático (site + app) servido pela própria API ---
+# Mantido POR ÚLTIMO: as rotas /api/* têm prioridade; o resto cai no site.
+# Procura a pasta frontend/ tanto rodando local (projeto-bi/frontend) quanto no
+# container Docker (/app/frontend).
+from pathlib import Path
+from fastapi.staticfiles import StaticFiles
+
+_here = Path(__file__).resolve()
+for _cand in (_here.parents[2] / "frontend", _here.parents[1] / "frontend", Path.cwd() / "frontend"):
+    if _cand.is_dir():
+        app.mount("/", StaticFiles(directory=str(_cand), html=True), name="site")
+        break
